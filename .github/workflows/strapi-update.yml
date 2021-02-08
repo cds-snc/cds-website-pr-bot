@@ -1,0 +1,11 @@
+name: Webhook Example
+on: repository_dispatch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: cds-snc/notification-pr-bot@master
+      env:
+        TOKEN: ${{ secrets.TOKEN }}
+        STRAPI_ENDPOINT: http://cms-load-balancer-986685684.ca-central-1.elb.amazonaws.com/
