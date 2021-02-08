@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 
 var getBlogPosts = async function(lang) {
-  return await fetch(process.env.DB_ENDPOINT + "blog-" + lang + "s")
+  return await fetch(process.env.STRAPI_ENDPOINT + "blog-" + lang + "s")
   .then(response => response.json())
   .then(
     data => {

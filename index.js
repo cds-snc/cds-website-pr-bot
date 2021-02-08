@@ -4,7 +4,7 @@ if (process.env.NODE_ENV != "Production") {
 const github = require('@actions/github');
 const Base64 = require('js-base64').Base64;
 
-const myToken = "eea2c9b2e17474870ccd974efe07421d2b02f68c"; // process.env.TOKEN;
+const myToken = process.env.TOKEN;
 const octokit = github.getOctokit(myToken);
 
 const getBlogPosts = require("./content_fetch/fetch_blog_posts");
@@ -16,6 +16,44 @@ const getHeadSha = async (repo, branch = 'master') => {
     branch,
   });
   return data.commit.sha;
+}
+
+const getExistingContent = async (path) => {
+  const { data: data } = await octokit.repos.getContent({
+    owner: 'cds-snc',
+    repo: 'digital-canada-ca',
+    path: path,
+  });
+  //console.log(data)
+  return data;
+}
+
+const createAndUpdateFiles = async (newFiles, oldFiles, path, branchName) => {
+  // for each modified or changed file:
+  for (f in newFiles) {
+    // === if file new or modified code here! ====
+    var exists = oldFiles.filter(oldFile => oldFile.name == newFiles[f].fileName)
+    /* TODO - modified files:
+        If exists - get that file specifically and compare blobs
+    */
+    if (exists.length == 0) {
+      console.log("CREATE NEW FILE!")
+      let content = Base64.encode(newFiles[f].body)
+      
+      /*
+      await octokit.repos.createOrUpdateFileContents({
+        owner: 'cds-snc',
+        repo: 'digital-canada-ca',
+        //sha: fileSha, // if update this is required
+        path: path + newFiles[f].fileName,
+        content: content,
+        branch: branchName,
+        message: "Added blog post file: " + blogPostsEnNew[f].fileName
+      })
+      */
+      
+    }
+  }
 }
 
 /*
@@ -30,35 +68,32 @@ Steps to update:
 */
 
 async function run() {
-  // who
+  /*
+  // whole repo
   const { data: data } = await octokit.repos.getContent({
     owner: 'cds-snc',
     repo: 'digital-canada-ca'
   });
   //console.log(data)
-
-  const { data: blogPostsEnData } = await octokit.repos.getContent({
-    owner: 'cds-snc',
-    repo: 'digital-canada-ca',
-    path: '/content/en/blog/posts',
-  });
-  //console.log(blogPostsEnData)
-  /*
-  var blogPostsEn = []
-  for (bp in blogPostsEnData) {
-    console.log(blogPostsEnData[bp].data.content)
-    blogPostsEn.push(Base64.decode(blogPostsEnData[bp].content))
-  }
-  console.log(blogPostsEn)
   */
 
-  const websiteSha = await getHeadSha("digital-canada-ca", "master");
+  // blog posts - en / fr
+  blogPostsEnExisting = await getExistingContent('/content/en/blog/posts');
+  blogPostsFrExisting = await getExistingContent('/content/fr/blog/posts');
+
+  // job postings (en / fr)
+  jobPostsEnExisting = await getExistingContent('/content/en/join-our-team/positions');
+  jobPostsFrExisting = await getExistingContent('/content/fr/join-our-team/positions');
+  // products (en / fr)
+
 
   // Get CMS Content
   var blogPostsEnNew = await getBlogPosts("en");
-  console.log(blogPostsEnNew);
+  var blogPostsFrNew = await getBlogPosts("fr");
 
-  branchName = `release-${new Date().getTime()}`;
+  // Create Ref
+  const websiteSha = await getHeadSha("digital-canada-ca", "master");
+  branchName = `content-release-${new Date().getTime()}`;
   await octokit.git.createRef({
     owner: 'cds-snc',
     repo: 'digital-canada-ca',
@@ -66,34 +101,12 @@ async function run() {
     sha: websiteSha
   });
 
-  // for each modified or changed file:
-  
-  for (f in blogPostsEnNew) {
-    // === if file new or modified code here! ====
-    var exists = blogPostsEnData.filter(blogPostEnglish => blogPostEnglish.name == blogPostsEnNew[f].fileName)
-    console.log(exists)
-    /* TODO - modified files */
-    if (exists.length == 0) {
-      console.log("CREATE NEW FILE!")
-      let content = Base64.encode(blogPostsEnNew[f].body)
-      
-      /*await octokit.repos.createOrUpdateFileContents({
-        owner: 'cds-snc',
-        repo: 'digital-canada-ca',
-        //sha: fileSha, // if update this is required
-        path: "content/en/blog/posts/" + blogPostsEnNew[f].fileName,
-        content: content,
-        branch: branchName,
-        message: "Added blog post file: " + blogPostsEnNew[f].fileName
-      })
-      */
-      
-    }
-  }
-  
+  // Create / Update file commits
+  await createAndUpdateFiles(blogPostsEnNew, blogPostsEnExisting, "content/en/blog/posts/", branchName);
+  await createAndUpdateFiles(blogPostsFrNew, blogPostsFrExisting, "content/fr/blog/posts/", branchName);
 
-  /*
   // Make the PR
+  /*
   await octokit.pulls.create({
     owner: 'cds-snc',
     repo: 'digital-canada-ca',
@@ -104,5 +117,6 @@ async function run() {
     draft: false
   });
   */
+
 }
 run();
