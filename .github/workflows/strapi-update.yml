@@ -1,4 +1,4 @@
-name: Webhook Example
+name: Update Website Content
 on: repository_dispatch
 
 jobs:
