@@ -7,6 +7,31 @@ const Base64 = require('js-base64').Base64;
 const myToken = process.env.TOKEN;
 const octokit = github.getOctokit(myToken);
 
+async function closePRs() {
+  // Close old auto PRs
+  const {data: prs} = await octokit.pulls.list({
+    owner: 'cds-snc',
+    repo: 'digital-canada-ca',
+    state: 'open'
+  });
+
+  prs.forEach( async pr => {
+    if(pr.title.startsWith("[AUTO-PR]")) {
+      await octokit.pulls.update({
+        owner: 'cds-snc',
+        repo: 'digital-canada-ca',
+        pull_number: pr.number,
+        state: "closed"
+      });
+      await octokit.git.deleteRef({
+        owner: 'cds-snc',
+        repo: 'digital-canada-ca',
+        ref: `heads/${pr.head.ref}`
+      });
+    }
+  })
+}
+
 const getBlogPosts = require("./content_fetch/fetch_blog_posts");
 
 const getHeadSha = async (repo, branch = 'master') => {
@@ -104,6 +129,10 @@ async function run() {
   // Create / Update file commits
   await createAndUpdateFiles(blogPostsEnNew, blogPostsEnExisting, "content/en/blog/posts/", branchName);
   await createAndUpdateFiles(blogPostsFrNew, blogPostsFrExisting, "content/fr/blog/posts/", branchName);
+
+  // if there is content
+
+  // closePRs()
 
   // Make the PR
   /*

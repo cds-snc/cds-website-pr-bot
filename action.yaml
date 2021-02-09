@@ -2,4 +2,4 @@ name: 'CDS Website PR Bot'
 description: 'Fetches the latest content updates from the CDS Website CMS and builds the Hugo site'
 runs:
   using: 'node12'
-  main: 'index.js'
+  main: 'dist/index.js'
