@@ -1,25 +1,22 @@
 const fetch = require('node-fetch');
 
-var getBlogPosts = async function(lang) {
-  return await fetch(process.env.STRAPI_ENDPOINT + "blog-" + lang + "s")
+var getJobPosts = async function(lang) {
+  return await fetch(process.env.STRAPI_ENDPOINT + "job-posting-" + lang + "s")
   .then(response => response.json())
   .then(
     data => {
       let files = [];
       for (p in data) {
         let post = data[p]
-        //console.log(post)
         let out = "";
         out += "---\n";
-        out += "layout: blog\n";
+        out += "layout: job-posting\n";
+        out += "type: section\n";
         out += "title: " + post.Title + "\n";
         out += "description: " + post.Description + "\n";
-        out += "author: '" + post.AuthorAndTitle + "'\n";
-        out += "date: '" + post.PublishDate + "'\n";
-        out += "image: " + post.BannerImage.url + "\n";
-        out += "image-alt: " + post.ImageAltText + "\n";
-        out += "thumb: " + post.BannerImage.formats.thumbnail.url + "\n";
+        out += "archived: " + post.Archived + "\n";
         out += "translationKey: " + post.TranslationID + "\n";
+        out += "leverId: " + post.LeverId + "\n";
         out += "---\n";
         out += post.Body + "\n";
         //console.log(out)
@@ -39,4 +36,4 @@ var getBlogPosts = async function(lang) {
   )
 }
 
-module.exports = getBlogPosts;
+module.exports = getJobPosts;
