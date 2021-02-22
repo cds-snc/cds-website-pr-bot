@@ -10,6 +10,8 @@ const octokit = github.getOctokit(myToken);
 const getBlogPosts = require("./content_fetch/fetch_blog_posts");
 const getJobPosts = require("./content_fetch/fetch_job_posts");
 
+const getTeamMembers = require("./content_fetch/fetch_team_members");
+
 
 async function closePRs() {
   // Close old auto PRs
@@ -59,9 +61,10 @@ const createAndUpdateFiles = async (newFiles, oldFiles, path, branchName) => {
   // for each modified or changed file:
   for (f in newFiles) {
     // === if file new or modified code here! ====
-    var exists = oldFiles.filter(oldFile => oldFile.name == newFiles[f].fileName)
-    
+    // If single file, github returns an object instead of an array
+    var exists = (oldFiles.name && oldFiles.name == newFiles[f].fileName) ? [oldFiles] : oldFiles.filter(oldFile => oldFile.name == newFiles[f].fileName);
     let content = Base64.encode(newFiles[f].body)
+
     if (exists.length == 0) {
       // Create new File
       await octokit.repos.createOrUpdateFileContents({
@@ -70,7 +73,7 @@ const createAndUpdateFiles = async (newFiles, oldFiles, path, branchName) => {
         path: path + newFiles[f].fileName,
         content: content,
         branch: branchName,
-        message: "Added blog post file: " + newFiles[f].fileName
+        message: "Added new file: " + newFiles[f].fileName
       })
     } else {
       await octokit.repos.getContent({
@@ -87,7 +90,7 @@ const createAndUpdateFiles = async (newFiles, oldFiles, path, branchName) => {
             path: exists[0].path,
             content: content,
             branch: branchName,
-            message: "Updated blog post file: " + newFiles[f].fileName
+            message: "Updated file: " + newFiles[f].fileName
           })
         }
       })
@@ -125,6 +128,9 @@ async function run() {
   // products (en / fr)
 
 
+  // team members
+  let teamMembersExisting = await getExistingContent('/data/team.yml');
+
   // Get CMS Content
   // Blog Posts
   var blogPostsEnNew = await getBlogPosts("en");
@@ -132,6 +138,9 @@ async function run() {
   // Job Postings
   var jobPostsEnNew = await getJobPosts("en");
   var jobPostsFrNew = await getJobPosts("fr");
+
+  // Team Members
+  var teamMembersNew = await getTeamMembers();
 
   // Create Ref
   const websiteSha = await getHeadSha("digital-canada-ca", "master");
@@ -152,6 +161,9 @@ async function run() {
   // Job Postings
   await createAndUpdateFiles(jobPostsEnNew, jobPostsEnExisting, "content/en/join-our-team/positions/", branchName);
   await createAndUpdateFiles(jobPostsFrNew, jobPostsFrExisting, "content/fr/join-our-team/positions/", branchName);
+
+  // Team Members
+  await createAndUpdateFiles(teamMembersNew, teamMembersExisting, "data/", branchName);
 
   // if there is content - compare shas of most recent commit on the branch and main
   let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
