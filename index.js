@@ -186,7 +186,7 @@ async function run() {
       title: `[AUTO-PR] New content release -  ${new Date().toISOString()}`,
       head: branchName,
       base: 'master',
-      body: "Testing!",
+      body: "New Content release for CDS Website. See below commits for list of changes.",
       draft: false
     });
 
