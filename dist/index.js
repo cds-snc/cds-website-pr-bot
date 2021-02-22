@@ -95,6 +95,70 @@ module.exports = getJobPosts;
 
 /***/ }),
 
+/***/ 466:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const fetch = __webpack_require__(467);
+
+var getTeamMembers = async function() {
+  var out = "exec:\n";
+  out += await fetch(process.env.STRAPI_ENDPOINT + "team-members?KeyContact=true&_sort=name:ASC")
+  .then(response => response.json())
+  .then(
+    data => {
+      let txt = "";
+      for (p in data) {
+        let member = data[p]
+        txt += addTeamMember(member);
+      }
+      return txt;
+    }
+  );
+  out += "team:\n";
+  out += await fetch(process.env.STRAPI_ENDPOINT + "team-members?KeyContact=false&_sort=name:ASC")
+  .then(response => response.json())
+  .then(
+    data => {
+      let txt = "";
+      for (p in data) {
+        let member = data[p]
+        txt += addTeamMember(member);
+      }
+      return txt;
+    }
+  )
+
+  // return a single file in an array so existing function can be re-used to process
+  return [{body: out, fileName: "team.yml"}];
+}
+
+var addTeamMember = function(member) {
+  let txt = ""
+  txt += "  - archived: " + member.archived + "\n";
+  txt += "    name: " + member.name + "\n";
+  txt += "    title:\n"
+  txt += "      en: " + member.titleEN + "\n";
+  txt += "      fr: " + member.titleFR + "\n";
+
+  let hash = (member.Photo.formats.small ? member.Photo.formats.small.hash : member.Photo.hash);
+  txt += "    imagehash: " + hash + "\n";
+  
+  if (member.email)
+    txt += "    email: " + member.email + "\n";
+  if (member.github)
+    txt += "    github: " + member.github + "\n";
+  if (member.linkedin)
+    txt += "    linkedin: " + member.linkedin + "\n";
+  if (member.twitter)
+    txt += "    twitter: " + member.twitter + "\n";
+  
+  return txt;
+}
+
+module.exports = getTeamMembers;
+
+/***/ }),
+
 /***/ 932:
 /***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
 
@@ -109,6 +173,8 @@ const octokit = github.getOctokit(myToken);
 
 const getBlogPosts = __webpack_require__(84);
 const getJobPosts = __webpack_require__(866);
+
+const getTeamMembers = __webpack_require__(466);
 
 
 async function closePRs() {
@@ -159,9 +225,10 @@ const createAndUpdateFiles = async (newFiles, oldFiles, path, branchName) => {
   // for each modified or changed file:
   for (f in newFiles) {
     // === if file new or modified code here! ====
-    var exists = oldFiles.filter(oldFile => oldFile.name == newFiles[f].fileName)
-    
+    // If single file, github returns an object instead of an array
+    var exists = (oldFiles.name && oldFiles.name == newFiles[f].fileName) ? [oldFiles] : oldFiles.filter(oldFile => oldFile.name == newFiles[f].fileName);
     let content = Base64.encode(newFiles[f].body)
+
     if (exists.length == 0) {
       // Create new File
       await octokit.repos.createOrUpdateFileContents({
@@ -170,7 +237,7 @@ const createAndUpdateFiles = async (newFiles, oldFiles, path, branchName) => {
         path: path + newFiles[f].fileName,
         content: content,
         branch: branchName,
-        message: "Added blog post file: " + newFiles[f].fileName
+        message: "Added new file: " + newFiles[f].fileName
       })
     } else {
       await octokit.repos.getContent({
@@ -187,7 +254,7 @@ const createAndUpdateFiles = async (newFiles, oldFiles, path, branchName) => {
             path: exists[0].path,
             content: content,
             branch: branchName,
-            message: "Updated blog post file: " + newFiles[f].fileName
+            message: "Updated file: " + newFiles[f].fileName
           })
         }
       })
@@ -225,6 +292,9 @@ async function run() {
   // products (en / fr)
 
 
+  // team members
+  let teamMembersExisting = await getExistingContent('/data/team.yml');
+
   // Get CMS Content
   // Blog Posts
   var blogPostsEnNew = await getBlogPosts("en");
@@ -232,6 +302,9 @@ async function run() {
   // Job Postings
   var jobPostsEnNew = await getJobPosts("en");
   var jobPostsFrNew = await getJobPosts("fr");
+
+  // Team Members
+  var teamMembersNew = await getTeamMembers();
 
   // Create Ref
   const websiteSha = await getHeadSha("digital-canada-ca", "master");
@@ -252,6 +325,9 @@ async function run() {
   // Job Postings
   await createAndUpdateFiles(jobPostsEnNew, jobPostsEnExisting, "content/en/join-our-team/positions/", branchName);
   await createAndUpdateFiles(jobPostsFrNew, jobPostsFrExisting, "content/fr/join-our-team/positions/", branchName);
+
+  // Team Members
+  await createAndUpdateFiles(teamMembersNew, teamMembersExisting, "data/", branchName);
 
   // if there is content - compare shas of most recent commit on the branch and main
   let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
@@ -274,7 +350,7 @@ async function run() {
       title: `[AUTO-PR] New content release -  ${new Date().toISOString()}`,
       head: branchName,
       base: 'master',
-      body: "Testing!",
+      body: "New Content release for CDS Website. See below commits for list of changes.",
       draft: false
     });
 
