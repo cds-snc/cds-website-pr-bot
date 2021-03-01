@@ -19,7 +19,7 @@ var getJobPosts = async function(lang) {
         out += "leverId: " + post.LeverId + "\n";
         out += "---\n";
         out += post.Body + "\n";
-        //console.log(out)
+
         let slug = "";
         let fields = post.Title.split(" ");
         for (i in fields) {
@@ -30,7 +30,7 @@ var getJobPosts = async function(lang) {
         }
         files.push({body: out, fileName: slug + ".md"})
       }
-      //console.log(files)
+      
       return files;
     }
   )

@@ -15,7 +15,7 @@ var getBlogPosts = async function(lang) {
       let files = [];
       for (p in data) {
         let post = data[p]
-        //console.log(post)
+        
         let out = "";
         out += "---\n";
         out += "layout: blog\n";
@@ -29,7 +29,7 @@ var getBlogPosts = async function(lang) {
         out += "translationKey: " + post.TranslationID + "\n";
         out += "---\n";
         out += post.Body + "\n";
-        //console.log(out)
+        
         let slug = "";
         let fields = post.Title.split(" ");
         for (i in fields) {
@@ -40,7 +40,7 @@ var getBlogPosts = async function(lang) {
         }
         files.push({body: out, fileName: slug + ".md"})
       }
-      //console.log(files)
+      
       return files;
     }
   )
@@ -74,7 +74,7 @@ var getJobPosts = async function(lang) {
         out += "leverId: " + post.LeverId + "\n";
         out += "---\n";
         out += post.Body + "\n";
-        //console.log(out)
+
         let slug = "";
         let fields = post.Title.split(" ");
         for (i in fields) {
@@ -85,13 +85,85 @@ var getJobPosts = async function(lang) {
         }
         files.push({body: out, fileName: slug + ".md"})
       }
-      //console.log(files)
+      
       return files;
     }
   )
 }
 
 module.exports = getJobPosts;
+
+/***/ }),
+
+/***/ 303:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const fetch = __webpack_require__(467);
+
+var getProducts = async function(lang, productType) {
+  return await fetch(process.env.STRAPI_ENDPOINT + productType + lang + "s")
+  .then(response => response.json())
+  .then(
+    data => {
+      let files = [];
+      for (p in data) {
+        let post = data[p]
+        let out = "";
+        out += "---\n";
+        out += "title: " + post.title + "\n";
+        out += "translationKey: " + post.TranslationID + "\n";
+        out += "description: >-\n";
+        out += "  " + post.description + "\n";
+        
+        if (post.LinkToProduct)
+          out += "product-url: " + post.LinkToProduct + "\n";
+
+        out += "phase: " + post.phase + "\n";
+        out += "status: " + (post.status == "inflight" ? "in-flight" : post.status) + "\n"; // strapi regex does not allow the dash
+        out += "onhomepage: " + post.onhomepage + "\n";
+
+        out += "contact:\n";
+        for (c in post.contacts) {
+          out += "  - email: " + post.contacts[c].email + "\n";
+          out += "    name: " + post.contacts[c].name + "\n";
+        }
+
+        if (post.partners.length > 0) {
+          out += "partners:\n";
+          for (pp in post.partners) {
+            let partner = post.partners[pp];
+            out += "  - name: " + partner["name" + lang.toUpperCase()] + "\n";
+            out += "    url: " + partner["url" + lang.toUpperCase()] + "\n";
+          }
+        }
+
+        if (post.product_links.length > 0) {
+          out += "links:\n";
+          for (l in post.product_links) {
+            let link = post.product_links[l];
+            out += "  - name: " + link["linkText" + lang.toUpperCase()] + "\n";
+            out += "    url: " + link["url" + lang.toUpperCase()] + "\n";
+          }
+        }
+        out += "---\n";
+
+        let slug = "";
+        let fields = post.title.split(" ");
+        for (i in fields) {
+          slug += fields[i].toLowerCase();
+          if (i < fields.length - 1) {
+            slug += "-"
+          }
+        }
+
+        files.push({body: out, fileName: slug + ".md"})
+      }
+      return files;
+    }
+  )
+}
+
+module.exports = getProducts;
 
 /***/ }),
 
@@ -175,6 +247,7 @@ const getBlogPosts = __webpack_require__(84);
 const getJobPosts = __webpack_require__(866);
 
 const getTeamMembers = __webpack_require__(466);
+const getProducts = __webpack_require__(303);
 
 
 async function closePRs() {
@@ -217,7 +290,6 @@ const getExistingContent = async (path) => {
     repo: 'digital-canada-ca',
     path: path,
   });
-  //console.log(data)
   return data;
 }
 
@@ -275,27 +347,33 @@ Steps to update:
 
 async function run() {
   /*
-  // whole repo
-  const { data: data } = await octokit.repos.getContent({
-    owner: 'cds-snc',
-    repo: 'digital-canada-ca'
-  });
-  //console.log(data)
+    Existing Content from the repo
   */
 
   // blog posts - en / fr
-  blogPostsEnExisting = await getExistingContent('/content/en/blog/posts');
-  blogPostsFrExisting = await getExistingContent('/content/fr/blog/posts');
+  let blogPostsEnExisting = await getExistingContent('/content/en/blog/posts');
+  let blogPostsFrExisting = await getExistingContent('/content/fr/blog/posts');
   // job postings (en / fr)
-  jobPostsEnExisting = await getExistingContent('/content/en/join-our-team/positions');
-  jobPostsFrExisting = await getExistingContent('/content/fr/join-our-team/positions');
-  // products (en / fr)
-
+  let jobPostsEnExisting = await getExistingContent('/content/en/join-our-team/positions');
+  let jobPostsFrExisting = await getExistingContent('/content/fr/join-our-team/positions');
+  // Products (en / fr)
+  // partnerships
+  let productsPartnershipsEnExisting = await getExistingContent('/content/en/products/products');
+  let productsPartnershipsFrExisting = await getExistingContent('/content/fr/products/products');
+  // platform
+  let productsPlatformEnExisting = await getExistingContent('/content/en/tools-and-resources/platform-tools');
+  let productsPlatformFrExisting = await getExistingContent('/content/fr/tools-and-resources/platform-tools');
+  // resources
+  let resourcesEnExisting = await getExistingContent('/content/en/tools-and-resources/resources');
+  let resourcesFrExisting = await getExistingContent('/content/fr/tools-and-resources/resources');
 
   // team members
   let teamMembersExisting = await getExistingContent('/data/team.yml');
 
-  // Get CMS Content
+  /*
+    Get CMS Content
+  */
+
   // Blog Posts
   var blogPostsEnNew = await getBlogPosts("en");
   var blogPostsFrNew = await getBlogPosts("fr");
@@ -305,6 +383,19 @@ async function run() {
 
   // Team Members
   var teamMembersNew = await getTeamMembers();
+
+  // Products
+  // endpoints are: "products-partnerships-lang", "products-platform-lang", "products-resources-lang"
+
+  // Partnerships
+  var productsPartnershipsEnNew = await getProducts("en", "products-partnerships-");
+  var productsPartnershipsFrNew = await getProducts("fr", "products-partnerships-");
+  // Platform
+  var productsPlatformEnNew = await getProducts("en", "products-platform-");
+  var productsPlatformFrNew = await getProducts("fr", "products-platform-");
+  // Resources
+  var resourcesEnNew = await getProducts("en", "products-resources-");
+  var resourcesFrNew = await getProducts("fr", "products-resources-");
 
   // Create Ref
   const websiteSha = await getHeadSha("digital-canada-ca", "master");
@@ -328,6 +419,17 @@ async function run() {
 
   // Team Members
   await createAndUpdateFiles(teamMembersNew, teamMembersExisting, "data/", branchName);
+
+  // Products
+  // Partnerships
+  await createAndUpdateFiles(productsPartnershipsEnNew, productsPartnershipsEnExisting, "content/en/products/products/", branchName);
+  await createAndUpdateFiles(productsPartnershipsFrNew, productsPartnershipsFrExisting, "content/fr/products/products/", branchName);
+  // Platform
+  await createAndUpdateFiles(productsPlatformEnNew, productsPlatformEnExisting, "content/en/tools-and-resources/platform-tools/", branchName);
+  await createAndUpdateFiles(productsPlatformFrNew, productsPlatformFrExisting, "content/fr/tools-and-resources/platform-tools/", branchName);
+  // Resources
+  await createAndUpdateFiles(resourcesEnNew, resourcesEnExisting, "content/en/tools-and-resources/resources/", branchName);
+  await createAndUpdateFiles(resourcesFrNew, resourcesFrExisting, "content/fr/tools-and-resources/resources/", branchName);
 
   // if there is content - compare shas of most recent commit on the branch and main
   let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
