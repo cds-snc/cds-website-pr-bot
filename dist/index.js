@@ -31,6 +31,7 @@ var getBlogPosts = async function(lang) {
         out += post.Body + "\n";
         
         let slug = "";
+        post.Title = post.Title.replace(",", "");
         let fields = post.Title.split(" ");
         for (i in fields) {
           slug += fields[i].toLowerCase();
@@ -76,6 +77,7 @@ var getJobPosts = async function(lang) {
         out += post.Body + "\n";
 
         let slug = "";
+        post.Title = post.Title.replace(",", "");
         let fields = post.Title.split(" ");
         for (i in fields) {
           slug += fields[i].toLowerCase();
@@ -148,6 +150,7 @@ var getProducts = async function(lang, productType) {
         out += "---\n";
 
         let slug = "";
+        post.title = post.title.replace(",", "");
         let fields = post.title.split(" ");
         for (i in fields) {
           slug += fields[i].toLowerCase();
