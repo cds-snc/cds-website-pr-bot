@@ -8,7 +8,7 @@ var getBlogPosts = async function(lang) {
       let files = [];
       for (p in data) {
         let post = data[p]
-        //console.log(post)
+        
         let out = "";
         out += "---\n";
         out += "layout: blog\n";
@@ -22,7 +22,7 @@ var getBlogPosts = async function(lang) {
         out += "translationKey: " + post.TranslationID + "\n";
         out += "---\n";
         out += post.Body + "\n";
-        //console.log(out)
+        
         let slug = "";
         let fields = post.Title.split(" ");
         for (i in fields) {
@@ -33,7 +33,7 @@ var getBlogPosts = async function(lang) {
         }
         files.push({body: out, fileName: slug + ".md"})
       }
-      //console.log(files)
+      
       return files;
     }
   )
