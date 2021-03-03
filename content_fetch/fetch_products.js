@@ -48,6 +48,7 @@ var getProducts = async function(lang, productType) {
         out += "---\n";
 
         let slug = "";
+        post.title = post.title.replace(",", "");
         let fields = post.title.split(" ");
         for (i in fields) {
           slug += fields[i].toLowerCase();

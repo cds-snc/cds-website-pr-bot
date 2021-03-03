@@ -24,6 +24,7 @@ var getBlogPosts = async function(lang) {
         out += post.Body + "\n";
         
         let slug = "";
+        post.Title = post.Title.replace(",", "");
         let fields = post.Title.split(" ");
         for (i in fields) {
           slug += fields[i].toLowerCase();
