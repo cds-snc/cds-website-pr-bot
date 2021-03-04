@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const buildFileName = require("../utils/buildFileName");
 
 var getJobPosts = async function(lang) {
   return await fetch(process.env.STRAPI_ENDPOINT + "job-posting-" + lang + "s")
@@ -17,18 +18,11 @@ var getJobPosts = async function(lang) {
         out += "archived: " + post.Archived + "\n";
         out += "translationKey: " + post.TranslationID + "\n";
         out += "leverId: " + post.LeverId + "\n";
-        out += "---\n";
+        out += "---\n\n";
         out += post.Body + "\n";
 
-        let slug = "";
-        post.Title = post.Title.replace(",", "");
-        let fields = post.Title.split(" ");
-        for (i in fields) {
-          slug += fields[i].toLowerCase();
-          if (i < fields.length - 1) {
-            slug += "-"
-          }
-        }
+        let slug = buildFileName(post.Title);
+        
         files.push({body: out, fileName: slug + ".md"})
       }
       

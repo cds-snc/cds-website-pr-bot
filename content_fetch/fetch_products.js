@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const buildFileName = require("../utils/buildFileName");
 
 var getProducts = async function(lang, productType) {
   return await fetch(process.env.STRAPI_ENDPOINT + productType + lang + "s")
@@ -47,15 +48,7 @@ var getProducts = async function(lang, productType) {
         }
         out += "---\n";
 
-        let slug = "";
-        post.title = post.title.replace(",", "");
-        let fields = post.title.split(" ");
-        for (i in fields) {
-          slug += fields[i].toLowerCase();
-          if (i < fields.length - 1) {
-            slug += "-"
-          }
-        }
+        let slug = buildFileName(post.title);
 
         files.push({body: out, fileName: slug + ".md"})
       }
