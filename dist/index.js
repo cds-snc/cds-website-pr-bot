@@ -6,6 +6,7 @@ module.exports =
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 const fetch = __webpack_require__(467);
+const buildFileName = __webpack_require__(948);
 
 var getBlogPosts = async function(lang) {
   return await fetch(process.env.STRAPI_ENDPOINT + "blog-" + lang + "s")
@@ -30,15 +31,8 @@ var getBlogPosts = async function(lang) {
         out += "---\n";
         out += post.Body + "\n";
         
-        let slug = "";
-        post.Title = post.Title.replace(",", "");
-        let fields = post.Title.split(" ");
-        for (i in fields) {
-          slug += fields[i].toLowerCase();
-          if (i < fields.length - 1) {
-            slug += "-"
-          }
-        }
+        let slug = buildFileName(post.Title);
+
         files.push({body: out, fileName: slug + ".md"})
       }
       
@@ -55,6 +49,7 @@ module.exports = getBlogPosts;
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 const fetch = __webpack_require__(467);
+const buildFileName = __webpack_require__(948);
 
 var getJobPosts = async function(lang) {
   return await fetch(process.env.STRAPI_ENDPOINT + "job-posting-" + lang + "s")
@@ -73,18 +68,11 @@ var getJobPosts = async function(lang) {
         out += "archived: " + post.Archived + "\n";
         out += "translationKey: " + post.TranslationID + "\n";
         out += "leverId: " + post.LeverId + "\n";
-        out += "---\n";
+        out += "---\n\n";
         out += post.Body + "\n";
 
-        let slug = "";
-        post.Title = post.Title.replace(",", "");
-        let fields = post.Title.split(" ");
-        for (i in fields) {
-          slug += fields[i].toLowerCase();
-          if (i < fields.length - 1) {
-            slug += "-"
-          }
-        }
+        let slug = buildFileName(post.Title);
+        
         files.push({body: out, fileName: slug + ".md"})
       }
       
@@ -101,6 +89,7 @@ module.exports = getJobPosts;
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 const fetch = __webpack_require__(467);
+const buildFileName = __webpack_require__(948);
 
 var getProducts = async function(lang, productType) {
   return await fetch(process.env.STRAPI_ENDPOINT + productType + lang + "s")
@@ -149,15 +138,7 @@ var getProducts = async function(lang, productType) {
         }
         out += "---\n";
 
-        let slug = "";
-        post.title = post.title.replace(",", "");
-        let fields = post.title.split(" ");
-        for (i in fields) {
-          slug += fields[i].toLowerCase();
-          if (i < fields.length - 1) {
-            slug += "-"
-          }
-        }
+        let slug = buildFileName(post.title);
 
         files.push({body: out, fileName: slug + ".md"})
       }
@@ -6277,6 +6258,38 @@ function wrappy (fn, cb) {
   }
 }
 
+
+/***/ }),
+
+/***/ 948:
+/***/ ((module) => {
+
+var buildFileName = function(title) {
+  let slug = "";
+
+  // sanitize special characters
+  title = title.replace(/\(|\)|,|\//g, " ");
+
+  // collapse spaces
+  title = title.replace(/  +/g, " ");
+
+  // remove trailing dash
+  if (title.slice(-1) == " ")
+    title = title.slice(0, -1)
+
+  // build filename
+  let fields = title.split(" ");
+  for (i in fields) {
+    slug += fields[i].toLowerCase();
+    if (i < fields.length - 1) {
+      slug += "-"
+    }
+  }
+
+  return slug;
+}
+
+module.exports = buildFileName;
 
 /***/ }),
 
