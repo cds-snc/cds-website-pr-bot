@@ -57,12 +57,13 @@ const getExistingContent = async (path) => {
   return data;
 }
 
-const createAndUpdateFiles = async (newFiles, oldFiles, path, branchName) => {
+const createAndUpdateFiles = async (newFiles, oldFiles, lang, subpath, branchName) => {
   // for each modified or changed file:
+  let path = "content/" + lang + "/";
   for (f in newFiles) {
     // === if file new or modified code here! ====
     // If single file, github returns an object instead of an array
-    var exists = (oldFiles.name && oldFiles.name == newFiles[f].fileName) ? [oldFiles] : oldFiles.filter(oldFile => oldFile.name == newFiles[f].fileName);
+    var exists = (oldFiles.name && oldFiles.name == newFiles[f].fileName) ? [oldFiles] : oldFiles.filter(oldFile => oldFile.path == subpath + newFiles[f].fileName);
     let content = Base64.encode(newFiles[f].body)
 
     if (exists.length == 0) {
@@ -70,7 +71,7 @@ const createAndUpdateFiles = async (newFiles, oldFiles, path, branchName) => {
       await octokit.repos.createOrUpdateFileContents({
         owner: 'cds-snc',
         repo: 'digital-canada-ca',
-        path: path + newFiles[f].fileName,
+        path: path + subpath + newFiles[f].fileName,
         content: content,
         branch: branchName,
         message: "Added new file: " + newFiles[f].fileName
@@ -79,7 +80,7 @@ const createAndUpdateFiles = async (newFiles, oldFiles, path, branchName) => {
       await octokit.repos.getContent({
         owner: 'cds-snc',
         repo: 'digital-canada-ca',
-        path: exists[0].path
+        path: path + exists[0].path
       }).then(async result => {
         if (Base64.decode(result.data.content) != newFiles[f].body) {
           // Update existing file
@@ -87,15 +88,38 @@ const createAndUpdateFiles = async (newFiles, oldFiles, path, branchName) => {
             owner: 'cds-snc',
             repo: 'digital-canada-ca',
             sha: exists[0].sha, // if update this is required
-            path: exists[0].path,
+            path: path + exists[0].path,
             content: content,
             branch: branchName,
             message: "Updated file: " + newFiles[f].fileName
           })
         }
-      })
+      });
     }
   }
+}
+
+const updateTeamFile = async (newFile, branchName) => {
+  console.log(newFile)
+  let content = Base64.encode(newFile[0].body)
+  await octokit.repos.getContent({
+    owner: 'cds-snc',
+    repo: 'digital-canada-ca',
+    path: "data/team.yml"
+  }).then(async result => {
+    if (Base64.decode(result.data.content) != newFile[0].body) {
+      // Update existing file
+      await octokit.repos.createOrUpdateFileContents({
+        owner: 'cds-snc',
+        repo: 'digital-canada-ca',
+        sha: result.sha,
+        path: "data/team.yml",
+        content: content,
+        branch: branchName,
+        message: "Updated file: " + newFile[0].fileName
+      })
+    }
+  })
 }
 
 /*
@@ -114,22 +138,20 @@ async function run() {
     Existing Content from the repo
   */
 
-  // blog posts - en / fr
-  let blogPostsEnExisting = await getExistingContent('/content/en/blog/posts');
-  let blogPostsFrExisting = await getExistingContent('/content/fr/blog/posts');
-  // job postings (en / fr)
-  let jobPostsEnExisting = await getExistingContent('/content/en/join-our-team/positions');
-  let jobPostsFrExisting = await getExistingContent('/content/fr/join-our-team/positions');
-  // Products (en / fr)
-  // partnerships
-  let productsPartnershipsEnExisting = await getExistingContent('/content/en/products/products');
-  let productsPartnershipsFrExisting = await getExistingContent('/content/fr/products/products');
-  // platform
-  let productsPlatformEnExisting = await getExistingContent('/content/en/tools-and-resources/platform-tools');
-  let productsPlatformFrExisting = await getExistingContent('/content/fr/tools-and-resources/platform-tools');
-  // resources
-  let resourcesEnExisting = await getExistingContent('/content/en/tools-and-resources/resources');
-  let resourcesFrExisting = await getExistingContent('/content/fr/tools-and-resources/resources');
+  // get content tree(s)
+  
+  let existingContentEN = await octokit.git.getTree({
+    owner: 'cds-snc',
+    repo: 'digital-canada-ca',
+    tree_sha: "3cfb5d4cc05fe6a76d359950625dcdf7bb65cb09",
+    recursive: true
+  });
+  let existingContentFR = await octokit.git.getTree({
+    owner: 'cds-snc',
+    repo: 'digital-canada-ca',
+    tree_sha: "4fda37ecfae0cadc3039d0ad3203f4761c3aad6d",
+    recursive: true
+  });
 
   // team members
   let teamMembersExisting = await getExistingContent('/data/team.yml');
@@ -138,6 +160,7 @@ async function run() {
     Get CMS Content
   */
 
+  
   // Blog Posts
   var blogPostsEnNew = await getBlogPosts("en");
   var blogPostsFrNew = await getBlogPosts("fr");
@@ -175,25 +198,25 @@ async function run() {
 
   // Create / Update file commits
   // Blog posts
-  await createAndUpdateFiles(blogPostsEnNew, blogPostsEnExisting, "content/en/blog/posts/", branchName);
-  await createAndUpdateFiles(blogPostsFrNew, blogPostsFrExisting, "content/fr/blog/posts/", branchName);
+  await createAndUpdateFiles(blogPostsEnNew, existingContentEN.data.tree, "en", "blog/posts/", branchName);
+  await createAndUpdateFiles(blogPostsFrNew, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
   // Job Postings
-  await createAndUpdateFiles(jobPostsEnNew, jobPostsEnExisting, "content/en/join-our-team/positions/", branchName);
-  await createAndUpdateFiles(jobPostsFrNew, jobPostsFrExisting, "content/fr/join-our-team/positions/", branchName);
-
-  // Team Members
-  await createAndUpdateFiles(teamMembersNew, teamMembersExisting, "data/", branchName);
+  await createAndUpdateFiles(jobPostsEnNew, existingContentEN.data.tree, "en", "join-our-team/positions/", branchName);
+  await createAndUpdateFiles(jobPostsFrNew, existingContentFR.data.tree, "fr", "join-our-team/positions/", branchName);
 
   // Products
   // Partnerships
-  await createAndUpdateFiles(productsPartnershipsEnNew, productsPartnershipsEnExisting, "content/en/products/products/", branchName);
-  await createAndUpdateFiles(productsPartnershipsFrNew, productsPartnershipsFrExisting, "content/fr/products/products/", branchName);
+  await createAndUpdateFiles(productsPartnershipsEnNew, existingContentEN.data.tree, "en", "products/products/", branchName);
+  await createAndUpdateFiles(productsPartnershipsFrNew, existingContentFR.data.tree, "fr", "products/products/", branchName);
   // Platform
-  await createAndUpdateFiles(productsPlatformEnNew, productsPlatformEnExisting, "content/en/tools-and-resources/platform-tools/", branchName);
-  await createAndUpdateFiles(productsPlatformFrNew, productsPlatformFrExisting, "content/fr/tools-and-resources/platform-tools/", branchName);
+  await createAndUpdateFiles(productsPlatformEnNew, existingContentEN.data.tree, "en", "tools-and-resources/platform-tools/", branchName);
+  await createAndUpdateFiles(productsPlatformFrNew, existingContentFR.data.tree, "fr", "tools-and-resources/platform-tools/", branchName);
   // Resources
-  await createAndUpdateFiles(resourcesEnNew, resourcesEnExisting, "content/en/tools-and-resources/resources/", branchName);
-  await createAndUpdateFiles(resourcesFrNew, resourcesFrExisting, "content/fr/tools-and-resources/resources/", branchName);
+  await createAndUpdateFiles(resourcesEnNew, existingContentEN.data.tree, "en", "tools-and-resources/resources/", branchName);
+  await createAndUpdateFiles(resourcesFrNew, existingContentFR.data.tree, "fr", "tools-and-resources/resources/", branchName);
+
+  // Team Members
+  await updateTeamFile(teamMembersNew, branchName);
 
   // if there is content - compare shas of most recent commit on the branch and main
   let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
