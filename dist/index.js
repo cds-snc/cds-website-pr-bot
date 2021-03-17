@@ -24,11 +24,23 @@ var getBlogPosts = async function(lang) {
         out += "description: " + post.Description + "\n";
         out += "author: '" + post.AuthorAndTitle + "'\n";
         out += "date: '" + post.PublishDate + "'\n";
-        out += "image: " + post.BannerImage.url + "\n";
+        out += "image: " + post.BannerImage.url.replace(
+          "https://cds-website-assets-prod.s3.ca-central-1.amazonaws.com",
+          "https://de2an9clyit2x.cloudfront.net") + "\n";
         out += "image-alt: " + post.ImageAltText + "\n";
-        out += "thumb: " + post.BannerImage.formats.small.url + "\n";
+        out += "thumb: " + post.BannerImage.formats.small.url.replace(
+          "https://cds-website-assets-prod.s3.ca-central-1.amazonaws.com",
+          "https://de2an9clyit2x.cloudfront.net") + "\n";
         out += "translationKey: " + post.TranslationID + "\n";
         out += "---\n";
+
+        // sanitize any body image URLS to Cloudfront
+        while (post.Body.indexOf("https://cds-website-assets-prod.s3.ca-central-1.amazonaws.com") !== -1) {
+          post.Body = post.Body.replace(
+            "https://cds-website-assets-prod.s3.ca-central-1.amazonaws.com",
+            "https://de2an9clyit2x.cloudfront.net");
+        }
+
         out += post.Body + "\n";
         
         let slug = buildFileName(post.Title);
@@ -284,6 +296,7 @@ const createAndUpdateFiles = async (newFiles, oldFiles, lang, subpath, branchNam
     // === if file new or modified code here! ====
     // If single file, github returns an object instead of an array
     var exists = (oldFiles.name && oldFiles.name == newFiles[f].fileName) ? [oldFiles] : oldFiles.filter(oldFile => oldFile.path == subpath + newFiles[f].fileName);
+
     let content = Base64.encode(newFiles[f].body)
 
     if (exists.length == 0) {
@@ -320,7 +333,7 @@ const createAndUpdateFiles = async (newFiles, oldFiles, lang, subpath, branchNam
 }
 
 const updateTeamFile = async (newFile, branchName) => {
-  console.log(newFile)
+
   let content = Base64.encode(newFile[0].body)
   await octokit.repos.getContent({
     owner: 'cds-snc',
@@ -358,18 +371,23 @@ async function run() {
     Existing Content from the repo
   */
 
-  // get content tree(s)
+  // get content tree(s) shas
+  let treeShas = await octokit.repos.getContent({
+    owner: 'cds-snc',
+    repo: 'digital-canada-ca',
+    path: "/content",
+  });
   
   let existingContentEN = await octokit.git.getTree({
     owner: 'cds-snc',
     repo: 'digital-canada-ca',
-    tree_sha: "3cfb5d4cc05fe6a76d359950625dcdf7bb65cb09",
+    tree_sha: treeShas.data.filter(tree => tree.name === "en")[0].sha, // filter by name in case this directory is ever modified / added to
     recursive: true
   });
   let existingContentFR = await octokit.git.getTree({
     owner: 'cds-snc',
     repo: 'digital-canada-ca',
-    tree_sha: "4fda37ecfae0cadc3039d0ad3203f4761c3aad6d",
+    tree_sha: treeShas.data.filter(tree => tree.name === "fr")[0].sha,
     recursive: true
   });
 
