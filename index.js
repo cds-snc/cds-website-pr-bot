@@ -149,13 +149,13 @@ async function run() {
   let existingContentEN = await octokit.git.getTree({
     owner: 'cds-snc',
     repo: 'digital-canada-ca',
-    tree_sha: treeShas.data.filter(tree => tree.name == "en")[0].sha, // filter by name in case this directory is ever modified / added to
+    tree_sha: treeShas.data.filter(tree => tree.name === "en")[0].sha, // filter by name in case this directory is ever modified / added to
     recursive: true
   });
   let existingContentFR = await octokit.git.getTree({
     owner: 'cds-snc',
     repo: 'digital-canada-ca',
-    tree_sha: treeShas.data.filter(tree => tree.name == "fr")[0].sha,
+    tree_sha: treeShas.data.filter(tree => tree.name === "fr")[0].sha,
     recursive: true
   });
 
