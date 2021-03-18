@@ -113,7 +113,7 @@ const updateTeamFile = async (newFile, branchName) => {
       await octokit.repos.createOrUpdateFileContents({
         owner: 'cds-snc',
         repo: 'digital-canada-ca',
-        sha: result.sha,
+        sha: result.data.sha,
         path: "data/team.yml",
         content: content,
         branch: branchName,
@@ -159,8 +159,6 @@ async function run() {
     recursive: true
   });
 
-  // team members
-  let teamMembersExisting = await getExistingContent('/data/team.yml');
 
   /*
     Get CMS Content
