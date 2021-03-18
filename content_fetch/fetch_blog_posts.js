@@ -14,7 +14,8 @@ var getBlogPosts = async function(lang) {
         out += "---\n";
         out += "layout: blog\n";
         out += "title: " + post.Title + "\n";
-        out += "description: " + post.Description + "\n";
+        out += "description: >-\n";
+        out += "  " + post.Description + "\n";
         out += "author: '" + post.AuthorAndTitle + "'\n";
         out += "date: '" + post.PublishDate + "'\n";
 

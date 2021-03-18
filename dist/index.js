@@ -21,9 +21,13 @@ var getBlogPosts = async function(lang) {
         out += "---\n";
         out += "layout: blog\n";
         out += "title: " + post.Title + "\n";
-        out += "description: " + post.Description + "\n";
+        out += "description: >-\n";
+        out += "  " + post.Description + "\n";
         out += "author: '" + post.AuthorAndTitle + "'\n";
         out += "date: '" + post.PublishDate + "'\n";
+
+        // Strapi can only interface with the S3 URLS for the images, so we need to convert them to
+        // Cloudfront so they will be externally visible
         out += "image: " + post.BannerImage.url.replace(
           "https://cds-website-assets-prod.s3.ca-central-1.amazonaws.com",
           "https://de2an9clyit2x.cloudfront.net") + "\n";
@@ -34,7 +38,7 @@ var getBlogPosts = async function(lang) {
         out += "translationKey: " + post.TranslationID + "\n";
         out += "---\n";
 
-        // sanitize any body image URLS to Cloudfront
+        // Convert any body image URLS to Cloudfront
         while (post.Body.indexOf("https://cds-website-assets-prod.s3.ca-central-1.amazonaws.com") !== -1) {
           post.Body = post.Body.replace(
             "https://cds-website-assets-prod.s3.ca-central-1.amazonaws.com",
