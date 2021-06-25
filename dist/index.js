@@ -276,7 +276,7 @@ async function closePRs() {
   })
 }
 
-const getHeadSha = async (repo, branch = 'master') => {
+const getHeadSha = async (repo, branch = 'main') => {
   const { data: data } = await octokit.repos.getBranch({
     owner: 'cds-snc',
     repo,
@@ -426,7 +426,7 @@ async function run() {
   var resourcesFrNew = await getProducts("fr", "products-resources-");
 
   // Create Ref
-  const websiteSha = await getHeadSha("digital-canada-ca", "master");
+  const websiteSha = await getHeadSha("digital-canada-ca", "main");
   branchName = `content-release-${new Date().getTime()}`;
   
   let refs = await octokit.git.createRef({
@@ -468,7 +468,7 @@ async function run() {
   let maincommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
     owner: 'cds-snc',
     repo: 'digital-canada-ca',
-    sha: "master"
+    sha: "main"
   })
   if (branchcommit.data && branchcommit.data.sha != maincommit.data.sha) {
     closePRs()
@@ -479,7 +479,7 @@ async function run() {
       repo: 'digital-canada-ca',
       title: `[AUTO-PR] New content release -  ${new Date().toISOString()}`,
       head: branchName,
-      base: 'master',
+      base: 'main',
       body: "New Content release for CDS Website. See below commits for list of changes.",
       draft: false
     });
