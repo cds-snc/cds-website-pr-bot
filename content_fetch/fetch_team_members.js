@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-
+//
 var getTeamMembers = async function() {
   var out = "exec:\n";
   out += await fetch(process.env.STRAPI_ENDPOINT + "team-members?KeyContact=true&_sort=name:ASC")
