@@ -205,8 +205,8 @@ async function run() {
   await createAndUpdateFiles(blogPostsEnNew, existingContentEN.data.tree, "en", "blog/posts/", branchName);
   await createAndUpdateFiles(blogPostsFrNew, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
   // Job Postings
-  await createAndUpdateFiles(jobPostsEnNew, existingContentEN.data.tree, "en", "join-our-team/positions/", branchName);
-  await createAndUpdateFiles(jobPostsFrNew, existingContentFR.data.tree, "fr", "join-our-team/positions/", branchName);
+  await createAndUpdateFiles(jobPostsEnNew, existingContentEN.data.tree, "en", "careers/positions/", branchName);
+  await createAndUpdateFiles(jobPostsFrNew, existingContentFR.data.tree, "fr", "careers/positions/", branchName);
 
   // Products
   // Partnerships
