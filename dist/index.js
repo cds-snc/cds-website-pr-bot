@@ -88,7 +88,7 @@ var getJobPosts = async function(lang) {
         out += "---\n\n";
         out += post.Body + "\n";
 
-        let slug = buildFileName(post.Title);
+        let slug = buildFileName(post.Title + `- ${post.LeverId}`);
         
         files.push({body: out, fileName: slug + ".md"})
       }
