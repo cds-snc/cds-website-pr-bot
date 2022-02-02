@@ -13,6 +13,9 @@ const getJobPosts = require("./content_fetch/fetch_job_posts");
 const getTeamMembers = require("./content_fetch/fetch_team_members");
 const getProducts = require("./content_fetch/fetch_products");
 
+const getProductSuite = require("./content_fetch/fetch_product_suite");
+const getGuides = require("./content_fetch/fetch_guides");
+
 
 async function closePRs() {
   // Close old auto PRs
