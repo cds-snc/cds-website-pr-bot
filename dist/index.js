@@ -81,7 +81,7 @@ var getGuides = async function(lang) {
                out += "translationKey: " + post.TranslationID + "\n";
                out += "description: >-\n";
                out += "  " + post.Description + "\n";
-               out += "buttonText: " + postButtonText + "\n"
+               out += "buttonText: " + post.ButtonText + "\n"
                out += "buttonAria: " + post.ButtonAria + "\n"
                out += "weight: " + post.Weight + "\n"
                out += "url: " + post.Url + "\n"
@@ -172,7 +172,7 @@ var getProductSuite = async function(lang) {
                 out += "---\n\n";
                 out += post.Body + "\n";
 
-                let slug = buildFileName(post.title);
+                let slug = buildFileName(post.Title);
                 files.push({body: out, fileName: slug + ".md"})
             }
 
