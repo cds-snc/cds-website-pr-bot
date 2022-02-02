@@ -25,7 +25,7 @@ var getProductSuite = async function(lang) {
                 out += "---\n\n";
                 out += post.Body + "\n";
 
-                let slug = buildFileName(post.title);
+                let slug = buildFileName(post.Title);
                 files.push({body: out, fileName: slug + ".md"})
             }
 
