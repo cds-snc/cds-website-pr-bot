@@ -35,4 +35,4 @@ var getProductSuite = async function(lang) {
 
 }
 
-module.exports  = getProductSuite;
+module.exports = getProductSuite;
