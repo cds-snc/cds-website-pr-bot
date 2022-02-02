@@ -61,6 +61,44 @@ module.exports = getBlogPosts;
 
 /***/ }),
 
+/***/ 811:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const fetch = __webpack_require__(467);
+const buildFileName = __webpack_require__(948);
+
+var getGuides = async function(lang) {
+    return await fetch(process.env.STRAPI_ENDPOINT + "guides-" + lang + "s")
+    .then(response => response.json())
+    .then( 
+       data => {
+           let files = [];
+           for (p in data) {
+               let post = data[p]
+               let out = "";
+               out += "---\n";
+               out += "title: '" + post.Title + "'\n";
+               out += "translationKey: " + post.TranslationID + "\n";
+               out += "description: >-\n";
+               out += "  " + post.Description + "\n";
+               out += "buttonText: " + postButtonText + "\n"
+               out += "buttonAria: " + post.ButtonAria + "\n"
+               out += "weight: " + post.Weight + "\n"
+               out += "url: " + post.Url + "\n"
+               out += "---\n\n";
+               out += post.Body + "\n";
+
+               let slug = buildFileName(post.Title);
+               files.push({body: out, fileName: slug + ".md"})
+           }
+           return files
+       } 
+    )
+}
+module.exports = getGuides
+
+/***/ }),
+
 /***/ 866:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
@@ -99,6 +137,50 @@ var getJobPosts = async function(lang) {
 }
 
 module.exports = getJobPosts;
+
+/***/ }),
+
+/***/ 847:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const fetch = __webpack_require__(467);
+const buildFileName = __webpack_require__(948);
+
+var getProductSuite = async function(lang) {
+    return await fetch(process.env.STRAPI_ENDPOINT  + "product-suite-" + lang + "s")
+    .then(response => response.json())
+    .then(
+        data => {
+            let files = [];
+            for (p in data) {
+                let post = data[p]
+                let out = "";
+                out += "---\n";
+                out += "title: '" + post.title + "'\n";
+                out += "subtitle: '" + post.subtitle + "'\n";
+                out += "translationKey: " + post.TranslationID + "\n";
+                out += "description: >-\n";
+                out += "  " + post.description + "\n";
+                out += "secondDescription: >-\n";
+                out += "  " + post.secondDescription + "\n";
+                out += "buttonText: " + post.buttonText + "\n"
+                out += "buttonAria: " + post.buttonAria + "\n"
+                out += "weight: " + post.weight + "\n"
+                out += "url: " + post.url + "\n"
+                out += "---\n\n";
+                out += post.Body + "\n";
+
+                let slug = buildFileName(post.title);
+                files.push({body: out, fileName: slug + ".md"})
+            }
+
+            return files
+        }
+    )
+
+}
+
+module.exports  = getProductSuite;
 
 /***/ }),
 
@@ -249,6 +331,9 @@ const getJobPosts = __webpack_require__(866);
 
 const getTeamMembers = __webpack_require__(466);
 const getProducts = __webpack_require__(303);
+
+const getProductSuite = __webpack_require__(847);
+const getGuides = __webpack_require__(811);
 
 
 async function closePRs() {
