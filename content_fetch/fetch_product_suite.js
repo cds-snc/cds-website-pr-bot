@@ -22,6 +22,8 @@ var getProductSuite = async function(lang) {
                 out += "buttonAria: " + post.buttonAria + "\n"
                 out += "weight: " + post.weight + "\n"
                 out += "url: " + post.url + "\n"
+                out += "---\n\n";
+                out += post.Body + "\n";
 
                 let slug = buildFileName(post.title);
                 files.push({body: out, fileName: slug + ".md"})
