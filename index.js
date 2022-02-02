@@ -188,6 +188,14 @@ async function run() {
   var resourcesEnNew = await getProducts("en", "products-resources-");
   var resourcesFrNew = await getProducts("fr", "products-resources-");
 
+  //Product Suite
+  var productSuiteEnNew = await getProductSuite("en")
+  var productSuiteFrNew = await getProductSuite("fr")
+
+  //Guides
+  var guidesEnNew = await getGuides("en")
+  var guidesFrNew = await getGuides("fr")
+
   // Create Ref
   const websiteSha = await getHeadSha("digital-canada-ca", "main");
   branchName = `content-release-${new Date().getTime()}`;
@@ -221,6 +229,14 @@ async function run() {
 
   // Team Members
   await updateTeamFile(teamMembersNew, branchName);
+
+  //Product Suite
+  await createAndUpdateFiles(productSuiteEnNew, existingContentEN.data.tree, "en", "product-suite/product/", branchName)
+  await createAndUpdateFiles(productSuiteFrNew, existingContentFR.data.tree, "fr", "product-suite/product/", branchName)
+
+  //Guides
+  await createAndUpdateFiles(guidesEnNew, existingContentEN.data.tree, "en", "guides/resources/", branchName)
+  await createAndUpdateFiles(guidesFrNew, existingContentFR.data.tree, "fr", "guides/resources/", branchName)
 
   // if there is content - compare shas of most recent commit on the branch and main
   let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
