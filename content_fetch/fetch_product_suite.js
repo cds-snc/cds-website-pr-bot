@@ -31,7 +31,9 @@ var getProductSuite = async function(lang) {
 
             return files
         }
-    )
+    ).catch((e) => {
+        console.error(e)
+    }) 
 
 }
 
