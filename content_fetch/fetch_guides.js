@@ -27,6 +27,8 @@ var getGuides = async function(lang) {
            }
            return files
        } 
-    )
+    ).catch((e) => {
+        console.error(e)
+    }) 
 }
 module.exports = getGuides
