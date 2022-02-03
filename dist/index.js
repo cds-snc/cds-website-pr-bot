@@ -88,7 +88,7 @@ var getGuides = async function(lang) {
                out += "---\n\n";
                out += post.Body + "\n";
 
-               let slug = buildFileName(post.Title);
+               let slug = buildFileName("MyProductGuideTest");
                files.push({body: out, fileName: slug + ".md"})
            }
            return files
@@ -172,7 +172,7 @@ var getProductSuite = async function(lang) {
                 out += "---\n\n";
                 out += post.Body + "\n";
 
-                let slug = buildFileName(post.Title);
+                let slug = buildFileName("MyProductSuiteTest");
                 files.push({body: out, fileName: slug + ".md"})
             }
 
