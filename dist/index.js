@@ -87,7 +87,6 @@ var getGuides = async function(lang) {
                out += "TagID: " + post.TagID + "\n"
                out += "LinkToGuide: " + post.LinkToGuide + "\n"
                out += "---\n\n";
-               out += post.Body + "\n";
 
                let slug = buildFileName(post.Title);
                files.push({body: out, fileName: slug + ".md"})
@@ -172,7 +171,6 @@ var getProductSuite = async function(lang) {
                 out += "LinkToProductSuite: " + post.LinkToProductSuite + "\n"
                 out += "TagID: " + post.TagID + "\n"
                 out += "---\n\n";
-                out += post.Body + "\n";
 
                 let slug = buildFileName(post.Title);
                 files.push({body: out, fileName: slug + ".md"})
