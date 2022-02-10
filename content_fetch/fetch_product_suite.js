@@ -22,6 +22,7 @@ var getProductSuite = async function(lang) {
                 out += "ButtonAria: " + post.ButtonAria + "\n"
                 out += "Weight: " + post.Weight + "\n"
                 out += "LinkToProductSuite: " + post.LinkToProductSuite + "\n"
+                out += "TagID: " + post.TagID + "\n"
                 out += "---\n\n";
                 out += post.Body + "\n";
 

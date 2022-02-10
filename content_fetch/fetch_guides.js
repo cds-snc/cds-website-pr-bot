@@ -18,6 +18,7 @@ var getGuides = async function(lang) {
                out += "ButtonText: " + post.ButtonText + "\n"
                out += "ButtonAria: " + post.ButtonAria + "\n"
                out += "Weight: " + post.Weight + "\n"
+               out += "TagID: " + post.TagID + "\n"
                out += "LinkToGuide: " + post.LinkToGuide + "\n"
                out += "---\n\n";
                out += post.Body + "\n";
