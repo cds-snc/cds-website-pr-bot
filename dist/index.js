@@ -2,45 +2,6 @@ module.exports =
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 7861:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-const fetch = __webpack_require__(467);
-const buildFileName = __webpack_require__(8948);
-
-const ENDPOINT = "https://articles.alpha.canada.ca/articles-demo-darticles/wp-json/wp/v2/posts?markdown=true&_embed";
-
-var getArticlesPost = async function () {
-    return await fetch(ENDPOINT)
-    .then(response => response.json())
-    .then(
-        data => {
-            let files = [];
-            for (p in data) {
-                let post = data[p]
-                let out = "";
-                const title = post.title.rendered;
-                out += "---\n";
-                out += "layout: blog\n";
-                out += "title: '" + title + "'\n";
-                out += "description: >-\n";
-                out += "  " + post.markdown.content.rendered + "\n";
-                out += "author: '" + post._embedded.author[0].name + "'\n";
-                out += "date: '" + post.modified + "'\n";
-                out += post.Body + "\n";
-        
-                let slug = buildFileName(post.title);
-        
-                files.push({body: out, fileName: slug + ".md"})
-            }
-            return files;
-        }
-    )
-}
-module.exports = getArticlesPost;
-
-/***/ }),
-
 /***/ 5084:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
@@ -378,7 +339,7 @@ const getProducts = __webpack_require__(303);
 const getProductSuite = __webpack_require__(5847);
 const getGuides = __webpack_require__(1811);
 
-const getArticlesPost = __webpack_require__(7861)
+const getArticlesPost = __webpack_require__(8365)
 
 
 async function closePRs() {
@@ -581,7 +542,7 @@ async function run() {
   // Blog posts
   await createAndUpdateFiles(blogPostsEnNew, existingContentEN.data.tree, "en", "blog/posts/", branchName);
   await createAndUpdateFiles(blogPostsFrNew, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
-  await createAndUpdateFiles(articlesPostsNew, existingContentEN.data.tree, "en", "blog/posts/", branchName);
+  await createAndUpdateFiles(articlesPostsNew, existingContentEN.data.tree, "en", "artcles/posts/", branchName);
   // Job Postings
   await createAndUpdateFiles(jobPostsEnNew, existingContentEN.data.tree, "en", "careers/positions/", branchName);
   await createAndUpdateFiles(jobPostsFrNew, existingContentFR.data.tree, "fr", "careers/positions/", branchName);
@@ -6483,6 +6444,14 @@ var buildFileName = function(title) {
 }
 
 module.exports = buildFileName;
+
+/***/ }),
+
+/***/ 8365:
+/***/ ((module) => {
+
+module.exports = eval("require")("./content_fetch/fetch_articles_post");
+
 
 /***/ }),
 
