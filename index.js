@@ -16,6 +16,8 @@ const getProducts = require("./content_fetch/fetch_products");
 const getProductSuite = require("./content_fetch/fetch_product_suite");
 const getGuides = require("./content_fetch/fetch_guides");
 
+const getArticlesPost = require("./content_fetch/fetch_articles_post")
+
 
 async function closePRs() {
   // Close old auto PRs
@@ -178,6 +180,8 @@ async function run() {
   // Team Members
   var teamMembersNew = await getTeamMembers();
 
+  var articlesPostsNew = await getArticlesPost();
+
   // Products
   // endpoints are: "products-partnerships-lang", "products-platform-lang", "products-resources-lang"
 
@@ -215,6 +219,7 @@ async function run() {
   // Blog posts
   await createAndUpdateFiles(blogPostsEnNew, existingContentEN.data.tree, "en", "blog/posts/", branchName);
   await createAndUpdateFiles(blogPostsFrNew, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
+  await createAndUpdateFiles(articlesPostsNew, existingContentEN.data.tree, "en", "artcles/posts/", branchName);
   // Job Postings
   await createAndUpdateFiles(jobPostsEnNew, existingContentEN.data.tree, "en", "careers/positions/", branchName);
   await createAndUpdateFiles(jobPostsFrNew, existingContentFR.data.tree, "fr", "careers/positions/", branchName);
