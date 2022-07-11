@@ -13,34 +13,34 @@ var getBlogPosts = async function(lang) {
         let out = "";
         out += "---\n";
         out += "layout: blog\n";
-        out += "title: '" + post.Title + "'\n";
+        out += "title: '" + post.og_title + "'\n";
         out += "description: >-\n";
-        out += "  " + post.Description + "\n";
-        out += "author: '" + post.AuthorAndTitle + "'\n";
-        out += "date: '" + post.PublishDate + "'\n";
+        out += "  " + post.og_description + "\n";
+        out += "author: '" + post.meta.gc_author_name + "'\n";
+        out += "date: '" + post.date + "'\n";
 
         // Strapi can only interface with the S3 URLS for the images, so we need to convert them to
         // Cloudfront so they will be externally visible
-        out += "image: " + post.BannerImage.url.replace(
+        out += "image: " + post.og_image.url.replace(
           "https://cds-website-assets-prod.s3.ca-central-1.amazonaws.com",
           "https://de2an9clyit2x.cloudfront.net") + "\n";
-        out += "image-alt: " + post.ImageAltText + "\n";
-        out += "thumb: " + post.BannerImage.formats.small.url.replace(
+        out += "image-alt: " + post.alt_text + "\n";
+        out += "thumb: " + post.media_details.sizes.thumbnail.source_url.replace(
           "https://cds-website-assets-prod.s3.ca-central-1.amazonaws.com",
           "https://de2an9clyit2x.cloudfront.net") + "\n";
-        out += "translationKey: " + post.TranslationID + "\n";
+        out += "translationKey: " + post.slug_en + "\n";
         out += "---\n";
 
         // Convert any body image URLS to Cloudfront
-        while (post.Body.indexOf("https://cds-website-assets-prod.s3.ca-central-1.amazonaws.com") !== -1) {
-          post.Body = post.Body.replace(
+        while (post.content.rendered.indexOf("https://cds-website-assets-prod.s3.ca-central-1.amazonaws.com") !== -1) {
+          post.content.rendered = post.content.rendered.replace(
             "https://cds-website-assets-prod.s3.ca-central-1.amazonaws.com",
             "https://de2an9clyit2x.cloudfront.net");
         }
 
-        out += post.Body + "\n";
+        out += post.content.rendered + "\n";
         
-        let slug = buildFileName(post.Title);
+        let slug = buildFileName(post.og_title);
 
         files.push({body: out, fileName: slug + ".md"})
       }
