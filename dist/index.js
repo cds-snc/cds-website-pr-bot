@@ -9,7 +9,7 @@ const fetch = __webpack_require__(467);
 const buildFileName = __webpack_require__(948);
 
 var getBlogPosts = async function(lang) {
-  return await fetch(process.env.GC_ARTICLES_BLOG_ENDPOINT + "blog-" + lang + "s")
+  return await fetch(process.env.GC_ARTICLES_BLOG_ENDPOINT)
   .then(response => response.json())
   .then(
     data => {
