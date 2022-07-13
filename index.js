@@ -16,6 +16,7 @@ const getProducts = require("./content_fetch/fetch_products");
 const getProductSuite = require("./content_fetch/fetch_product_suite");
 const getGuides = require("./content_fetch/fetch_guides");
 
+const getBlogPostsFromGCArticles = require("./content_fetch/fetch_gc_articles_blog_post");
 
 
 async function closePRs() {
@@ -201,6 +202,9 @@ async function run() {
   var guidesEnNew = await getGuides("en")
   var guidesFrNew = await getGuides("fr")
 
+  //GC Articles Blogs
+  var gcArticlesBlogs = await getBlogPostsFromGCArticles();
+
   // Create Ref
   const websiteSha = await getHeadSha("digital-canada-ca", "main");
   branchName = `content-release-${new Date().getTime()}`;
@@ -217,6 +221,7 @@ async function run() {
   // Blog posts
   await createAndUpdateFiles(blogPostsEnNew, existingContentEN.data.tree, "en", "blog/posts/", branchName);
   await createAndUpdateFiles(blogPostsFrNew, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
+  await createAndUpdateFiles(gcArticlesBlogs, existingContentEN.data.tree, "en", "blog/posts/", branchName);
   // Job Postings
   await createAndUpdateFiles(jobPostsEnNew, existingContentEN.data.tree, "en", "careers/positions/", branchName);
   await createAndUpdateFiles(jobPostsFrNew, existingContentFR.data.tree, "fr", "careers/positions/", branchName);
