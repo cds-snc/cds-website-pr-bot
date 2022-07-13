@@ -19,8 +19,6 @@ var getBlogPostsFromGCArticles = async function() {
         out += "author: '" + post.meta.gc_author_name + "'\n";
         out += "date: '" + post.date + "'\n";
 
-        // Strapi can only interface with the S3 URLS for the images, so we need to convert them to
-        // Cloudfront so they will be externally visible
         out += "image: " + post.yoast_head_json.og_image[0].url.replace(
           "https://cds-website-assets-prod.s3.ca-central-1.amazonaws.com",
           "https://de2an9clyit2x.cloudfront.net") + "\n";
