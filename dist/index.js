@@ -63,7 +63,8 @@ const fetch = __webpack_require__(467);
 const buildFileName = __webpack_require__(8948);
 
 var getBlogPostsFromGCArticles = async function(lang) {
-  return await fetch(lang == "en" ? process.env.GC_ARTICLES_BLOG_ENDPOINT_EN + "posts?markdown=true&_embed" : process.env.GC_ARTICLES_BLOG_ENDPOINT_FR + "posts?markdown=true&_embed")
+  let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "posts?markdown=true&_embed" : process.env.GC_ARTICLES_ENDPOINT_FR + "posts?markdown=true&_embed"
+  return await fetch(url)
   .then(response => response.json())
   .then(
     data => {
