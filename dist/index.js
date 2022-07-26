@@ -62,8 +62,8 @@ module.exports = getBlogPosts;
 const fetch = __webpack_require__(467);
 const buildFileName = __webpack_require__(8948);
 
-var getBlogPostsFromGCArticles = async function() {
-  return await fetch(process.env.GC_ARTICLES_BLOG_ENDPOINT)
+var getBlogPostsFromGCArticles = async function(lang) {
+  return await fetch(lang == "en" ? process.env.GC_ARTICLES_BLOG_ENDPOINT_EN : process.env.GC_ARTICLES_BLOG_ENDPOINT_FR)
   .then(response => response.json())
   .then(
     data => {
@@ -578,7 +578,8 @@ async function run() {
   var guidesFrNew = await getGuides("fr")
 
   //GC Articles Blogs
-  var gcArticlesBlogs = await getBlogPostsFromGCArticles();
+  var gcArticlesBlogsEn = await getBlogPostsFromGCArticles("en");
+  var gcArticlesBlogsFr = await getBlogPostsFromGCArticles("fr");
 
   // Create Ref
   const websiteSha = await getHeadSha("digital-canada-ca", "main");
@@ -596,7 +597,8 @@ async function run() {
   // Blog posts
   await createAndUpdateFiles(blogPostsEnNew, existingContentEN.data.tree, "en", "blog/posts/", branchName);
   await createAndUpdateFiles(blogPostsFrNew, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
-  await createAndUpdateFiles(gcArticlesBlogs, existingContentEN.data.tree, "en", "blog/posts/", branchName);
+  await createAndUpdateFiles(gcArticlesBlogsEn, existingContentEN.data.tree, "en", "blog/posts/", branchName);
+  await createAndUpdateFiles(gcArticlesBlogsFr, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
   // Job Postings
   await createAndUpdateFiles(jobPostsEnNew, existingContentEN.data.tree, "en", "careers/positions/", branchName);
   await createAndUpdateFiles(jobPostsFrNew, existingContentFR.data.tree, "fr", "careers/positions/", branchName);
