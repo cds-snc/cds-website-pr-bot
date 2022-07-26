@@ -63,7 +63,7 @@ const fetch = __webpack_require__(467);
 const buildFileName = __webpack_require__(8948);
 
 var getBlogPostsFromGCArticles = async function(lang) {
-  return await fetch(lang == "en" ? process.env.GC_ARTICLES_BLOG_ENDPOINT_EN : process.env.GC_ARTICLES_BLOG_ENDPOINT_FR)
+  return await fetch(lang == "en" ? process.env.GC_ARTICLES_BLOG_ENDPOINT_EN + "posts" : process.env.GC_ARTICLES_BLOG_ENDPOINT_FR + "posts")
   .then(response => response.json())
   .then(
     data => {
@@ -83,7 +83,7 @@ var getBlogPostsFromGCArticles = async function(lang) {
         out += "image: " + post.yoast_head_json.og_image[0].url.replace(
           "https://cds-website-assets-prod.s3.ca-central-1.amazonaws.com",
           "https://de2an9clyit2x.cloudfront.net") + "\n";
-        out += "image-alt: " + post._embedded['wp:featuredmedia'][0].caption.rendered + "\n";
+        out += "image-alt: " + post._embedded['wp:featuredmedia'][0].alt_text + "\n";
         out += "thumb: " + post._embedded['wp:featuredmedia'][0].media_details.sizes.thumbnail.source_url.replace(
           "https://cds-website-assets-prod.s3.ca-central-1.amazonaws.com",
           "https://de2an9clyit2x.cloudfront.net") + "\n";
