@@ -62,8 +62,8 @@ module.exports = getBlogPosts;
 const fetch = __webpack_require__(467);
 const buildFileName = __webpack_require__(8948);
 
-var getBlogPostsFromGCArticles = async function() {
-  return await fetch(process.env.GC_ARTICLES_BLOG_ENDPOINT)
+var getBlogPostsFromGCArticles = async function(lang) {
+  return await fetch(lang == "en" ? process.env.GC_ARTICLES_BLOG_ENDPOINT_EN + "posts?markdown=true&_embed" : process.env.GC_ARTICLES_BLOG_ENDPOINT_FR + "posts?markdown=true&_embed")
   .then(response => response.json())
   .then(
     data => {
@@ -83,7 +83,7 @@ var getBlogPostsFromGCArticles = async function() {
         out += "image: " + post.yoast_head_json.og_image[0].url.replace(
           "https://cds-website-assets-prod.s3.ca-central-1.amazonaws.com",
           "https://de2an9clyit2x.cloudfront.net") + "\n";
-        out += "image-alt: " + post._embedded['wp:featuredmedia'][0].caption.rendered + "\n";
+        out += "image-alt: " + post._embedded['wp:featuredmedia'][0].alt_text + "\n";
         out += "thumb: " + post._embedded['wp:featuredmedia'][0].media_details.sizes.thumbnail.source_url.replace(
           "https://cds-website-assets-prod.s3.ca-central-1.amazonaws.com",
           "https://de2an9clyit2x.cloudfront.net") + "\n";
@@ -578,7 +578,8 @@ async function run() {
   var guidesFrNew = await getGuides("fr")
 
   //GC Articles Blogs
-  var gcArticlesBlogs = await getBlogPostsFromGCArticles();
+  var gcArticlesBlogsEn = await getBlogPostsFromGCArticles("en");
+  var gcArticlesBlogsFr = await getBlogPostsFromGCArticles("fr");
 
   // Create Ref
   const websiteSha = await getHeadSha("digital-canada-ca", "main");
@@ -596,7 +597,8 @@ async function run() {
   // Blog posts
   await createAndUpdateFiles(blogPostsEnNew, existingContentEN.data.tree, "en", "blog/posts/", branchName);
   await createAndUpdateFiles(blogPostsFrNew, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
-  await createAndUpdateFiles(gcArticlesBlogs, existingContentEN.data.tree, "en", "blog/posts/", branchName);
+  await createAndUpdateFiles(gcArticlesBlogsEn, existingContentEN.data.tree, "en", "blog/posts/", branchName);
+  await createAndUpdateFiles(gcArticlesBlogsFr, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
   // Job Postings
   await createAndUpdateFiles(jobPostsEnNew, existingContentEN.data.tree, "en", "careers/positions/", branchName);
   await createAndUpdateFiles(jobPostsFrNew, existingContentFR.data.tree, "fr", "careers/positions/", branchName);

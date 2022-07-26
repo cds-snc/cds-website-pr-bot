@@ -203,7 +203,8 @@ async function run() {
   var guidesFrNew = await getGuides("fr")
 
   //GC Articles Blogs
-  var gcArticlesBlogs = await getBlogPostsFromGCArticles();
+  var gcArticlesBlogsEn = await getBlogPostsFromGCArticles("en");
+  var gcArticlesBlogsFr = await getBlogPostsFromGCArticles("fr");
 
   // Create Ref
   const websiteSha = await getHeadSha("digital-canada-ca", "main");
@@ -221,7 +222,8 @@ async function run() {
   // Blog posts
   await createAndUpdateFiles(blogPostsEnNew, existingContentEN.data.tree, "en", "blog/posts/", branchName);
   await createAndUpdateFiles(blogPostsFrNew, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
-  await createAndUpdateFiles(gcArticlesBlogs, existingContentEN.data.tree, "en", "blog/posts/", branchName);
+  await createAndUpdateFiles(gcArticlesBlogsEn, existingContentEN.data.tree, "en", "blog/posts/", branchName);
+  await createAndUpdateFiles(gcArticlesBlogsFr, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
   // Job Postings
   await createAndUpdateFiles(jobPostsEnNew, existingContentEN.data.tree, "en", "careers/positions/", branchName);
   await createAndUpdateFiles(jobPostsFrNew, existingContentFR.data.tree, "fr", "careers/positions/", branchName);
