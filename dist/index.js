@@ -114,6 +114,48 @@ module.exports = getBlogPostsFromGCArticles;
 
 /***/ }),
 
+/***/ 7104:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const fetch = __webpack_require__(467);
+const buildFileName = __webpack_require__(8948);
+
+var getJobPostsFromGCArticles = async function (lang) {
+    let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "posts?markdown=true&_embed" : process.env.GC_ARTICLES_ENDPOINT_FR + "job?markdown=true&_embed"
+    return await fetch(url)
+    .then(response => response.json())
+    .then(
+        data => {
+            let files = [];
+            for (p in data) {
+                let post = data[p]
+                let out = "";
+                out += "---\n";
+                out += "layout: job-posting\n";
+                out += "type: section\n";
+                out += "title: '" + post.title.rendered + "'\n";
+                out += "description: >-\n";
+                out += "  " + post.excerpt.rendered + "\n";
+                out += "archived: " + post.meta.gc_job_archived + "\n";
+                out += "translationKey: " + post.slug + "\n";
+                out += "leverId: " + post.meta.gc_lever_id + "\n";
+                out += "---\n\n";
+                out += post.content.rendered + "\n";
+        
+                let slug = buildFileName(post.title.rendered + `- ${post.meta.gc_lever_id}`);
+                
+                files.push({body: out, fileName: slug + ".md"})
+              }
+              
+              return files;
+        }
+    )
+}
+
+module.exports = getJobPostsFromGCArticles;
+
+/***/ }),
+
 /***/ 1811:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
@@ -394,6 +436,8 @@ const getGuides = __webpack_require__(1811);
 
 const getBlogPostsFromGCArticles = __webpack_require__(4109);
 
+const getJobPostsFromGCArticles = __webpack_require__(7104);
+
 
 async function closePRs() {
   // Close old auto PRs
@@ -582,6 +626,10 @@ async function run() {
   var gcArticlesBlogsEn = await getBlogPostsFromGCArticles("en");
   var gcArticlesBlogsFr = await getBlogPostsFromGCArticles("fr");
 
+  //GC Articles Jobs
+  var gcArticlesJobPostsEn = await getJobPostsFromGCArticles("en");
+  var gcArticlesJobPostsFr = await getJobPostsFromGCArticles("fr");
+
   // Create Ref
   const websiteSha = await getHeadSha("digital-canada-ca", "main");
   branchName = `content-release-${new Date().getTime()}`;
@@ -603,6 +651,8 @@ async function run() {
   // Job Postings
   await createAndUpdateFiles(jobPostsEnNew, existingContentEN.data.tree, "en", "careers/positions/", branchName);
   await createAndUpdateFiles(jobPostsFrNew, existingContentFR.data.tree, "fr", "careers/positions/", branchName);
+  await createAndUpdateFiles(gcArticlesJobPostsEn, existingContentEN.data.tree, "en", "careers/positions/", branchName)
+  await createAndUpdateFiles(gcArticlesJobPostsFr, existingContentFR.data.tree, "fr", "careers/positions/", branchName)
 
   // Products
   // Partnerships
