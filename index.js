@@ -18,6 +18,8 @@ const getGuides = require("./content_fetch/fetch_guides");
 
 const getBlogPostsFromGCArticles = require("./content_fetch/fetch_gc_articles_blog_post");
 
+const getJobPostsFromGCArticles = require("./content_fetch/fetch_gc_articles_job_posts");
+
 
 async function closePRs() {
   // Close old auto PRs
@@ -206,6 +208,10 @@ async function run() {
   var gcArticlesBlogsEn = await getBlogPostsFromGCArticles("en");
   var gcArticlesBlogsFr = await getBlogPostsFromGCArticles("fr");
 
+  //GC Articles Jobs
+  var gcArticlesJobPostsEn = await getJobPostsFromGCArticles("en");
+  var gcArticlesJobPostsFr = await getJobPostsFromGCArticles("fr");
+
   // Create Ref
   const websiteSha = await getHeadSha("digital-canada-ca", "main");
   branchName = `content-release-${new Date().getTime()}`;
@@ -227,6 +233,8 @@ async function run() {
   // Job Postings
   await createAndUpdateFiles(jobPostsEnNew, existingContentEN.data.tree, "en", "careers/positions/", branchName);
   await createAndUpdateFiles(jobPostsFrNew, existingContentFR.data.tree, "fr", "careers/positions/", branchName);
+  await createAndUpdateFiles(gcArticlesJobPostsEn, existingContentEN.data.tree, "en", "careers/positions/", branchName)
+  await createAndUpdateFiles(gcArticlesJobPostsFr, existingContentFR.data.tree, "fr", "careers/positions/", branchName)
 
   // Products
   // Partnerships
