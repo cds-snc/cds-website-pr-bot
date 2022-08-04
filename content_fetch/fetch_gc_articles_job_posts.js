@@ -2,7 +2,7 @@ const fetch = require('node-fetch');
 const buildFileName = require("../utils/buildFileName");
 
 var getJobPostsFromGCArticles = async function (lang) {
-    let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "posts?markdown=true&_embed" : process.env.GC_ARTICLES_ENDPOINT_FR + "job?markdown=true&_embed"
+    let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "job?markdown=true&_embed" : process.env.GC_ARTICLES_ENDPOINT_FR + "job?markdown=true&_embed"
     return await fetch(url)
     .then(response => response.json())
     .then(

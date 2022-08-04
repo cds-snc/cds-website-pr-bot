@@ -121,7 +121,7 @@ const fetch = __webpack_require__(467);
 const buildFileName = __webpack_require__(8948);
 
 var getJobPostsFromGCArticles = async function (lang) {
-    let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "posts?markdown=true&_embed" : process.env.GC_ARTICLES_ENDPOINT_FR + "job?markdown=true&_embed"
+    let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "job?markdown=true&_embed" : process.env.GC_ARTICLES_ENDPOINT_FR + "job?markdown=true&_embed"
     return await fetch(url)
     .then(response => response.json())
     .then(
