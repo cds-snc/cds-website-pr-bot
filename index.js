@@ -20,6 +20,8 @@ const getBlogPostsFromGCArticles = require("./content_fetch/fetch_gc_articles_bl
 
 const getJobPostsFromGCArticles = require("./content_fetch/fetch_gc_articles_job_posts");
 
+const getTeamMembersFromGCArticles = require("./content_fetch/fetch_gc_articles_team_members");
+
 
 async function closePRs() {
   // Close old auto PRs
@@ -212,6 +214,9 @@ async function run() {
   var gcArticlesJobPostsEn = await getJobPostsFromGCArticles("en");
   var gcArticlesJobPostsFr = await getJobPostsFromGCArticles("fr");
 
+  //GC Articles Team members
+  var gcArticlesTeamMembers = await getTeamMembersFromGCArticles();
+
   // Create Ref
   const websiteSha = await getHeadSha("digital-canada-ca", "main");
   branchName = `content-release-${new Date().getTime()}`;
@@ -249,6 +254,7 @@ async function run() {
 
   // Team Members
   await updateTeamFile(teamMembersNew, branchName);
+  await updateTeamFile(gcArticlesTeamMembers, branchName);
 
   //Product Suite
   await createAndUpdateFiles(productSuiteEnNew, existingContentEN.data.tree, "en", "product-suite/product/", branchName);

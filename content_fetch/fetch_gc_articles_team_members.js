@@ -34,6 +34,7 @@ var getTeamMembersFromGCArticles = async function () {
             return txt
         }
     )
+    return [{body: out, fileName: "team.yml"}];
 }
 function addTeamMember(member) {
     let txt = "";
@@ -42,7 +43,7 @@ function addTeamMember(member) {
     txt += "    title:\n"
     txt += "      en: " + member.meta.cds_web_team_member_title_en + "\n"
     txt += "      fr: " + member.meta.cds_web_team_member_title_fr + "\n"
-    txt += "    imagehash: " + member._embedded['wp:featuredmedia'][0].media_details.sizes.medium.source_url + "\n"
+    txt += "    image: " + member._embedded['wp:featuredmedia'][0].media_details.sizes.medium.source_url + "\n"
 
     if (member.meta.cds_web_team_member_email){
         txt += "    email: " + member.meta.cds_web_team_member_email + "\n";
@@ -60,4 +61,4 @@ function addTeamMember(member) {
     return txt
 }
 
-getTeamMembersFromGCArticles();
+module.exports = getTeamMembersFromGCArticles;
