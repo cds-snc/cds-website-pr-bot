@@ -206,19 +206,14 @@ function addTeamMember(member) {
     txt += "      fr: " + member.meta.cds_web_team_member_title_fr + "\n"
     txt += "    image: " + member._embedded['wp:featuredmedia'][0].media_details.sizes.medium.source_url + "\n"
 
-    if (member.meta.cds_web_team_member_email){
+    if (member.meta.cds_web_team_member_email)
         txt += "    email: " + member.meta.cds_web_team_member_email + "\n";
-
-    }
-    if (member.meta.cds_web_team_member_github) {
+    if (member.meta.cds_web_team_member_github)
         txt += "    github: " + member.meta.cds_web_team_member_github + "\n";
-    }
-    if (member.meta.cds_web_team_member_linkedin) {
+    if (member.meta.cds_web_team_member_linkedin)
         txt += "    linkedin: " + member.meta.cds_web_team_member_linkedin + "\n";
-    }
-    if (member.meta.cds_web_team_member_twitter) {
+    if (member.meta.cds_web_team_member_twitter) 
         txt += "    twitter: " + member.meta.cds_web_team_member_twitter + "\n"
-    }
     return txt
 }
 
