@@ -114,6 +114,57 @@ module.exports = getBlogPostsFromGCArticles;
 
 /***/ }),
 
+/***/ 9587:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const fetch = __webpack_require__(467);
+const buildFileName = __webpack_require__(8948);
+
+var getGCArticlesCoachingAndAdvice = async function (lang) {
+    let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "product?_embed&categories=12" : process.env.GC_ARTICLES_ENDPOINT_FR + "product?_embed&categories=22";
+    return await fetch(url)
+    .then(response => response.json())
+    .then(data => {
+        let files = [];
+        for (p in data) {
+            let post = data[p];
+            let parsed = JSON.parse(post.meta.cds_product)
+            let out = "";
+            out += "---\n";
+            out += "title: '" + post.title.rendered + "'\n";
+            out += "translationKey: " + post.slug + "\n";
+            out += "description: >-\n";
+            out += "  " + parsed.description + "\n";
+            if (parsed.parsed_cds_product_links_related.length > 0) {
+                out += "partners:\n";
+                for (pp in parsed.parsed_cds_product_links_related) {
+                    let partner = parsed.parsed_cds_product_links_related[pp];
+                    out += "  - name: " + partner["text"] + "\n";
+                    out += "    url " + partner["link"] + "\n";
+                }
+            }
+            if (parsed.parsed_cds_product_links.length > 0) {
+                out += "links:\n";
+                for (l in parsed.parsed_cds_product_links) {
+                    let link = parsed.parsed_cds_product_links[l];
+                    out += "  - name: " + link["text"] + "\n";
+                    out += "    url: " + link["link"] + "\n"; 
+                }
+            }
+            out += "---\n";
+
+            let slug = buildFileName(post.title.rendered)
+            files.push({body: out, fileName: slug + ".md"})
+        }
+        return files;
+    }
+    )
+}
+
+module.exports = getGCArticlesCoachingAndAdvice
+
+/***/ }),
+
 /***/ 7104:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
@@ -434,7 +485,7 @@ const getProducts = __webpack_require__(303);
 const getProductSuite = __webpack_require__(5847);
 const getGuides = __webpack_require__(1811);
 
-// const getCoachingAndAdviceFromGCArticles = require("./content_fetch/fetch_gc_articles_coaching_and_advice");
+const getCoachingAndAdviceFromGCArticles = __webpack_require__(9587);
 // const getProductSuiteFromGCArticles = require("./content_fetch/fetch_gc_articles_product_suite");
 // const getGuidesFromGCArticles = require("./content_fetch/fetch_gc_articles_guides");
 
@@ -640,8 +691,8 @@ async function run() {
   // var gcArticlesTeamMembers = await getTeamMembersFromGCArticles();
 
   //GC Articles Coaching and Advice
-  // var gcArticlesCoachingAndAdviceEn = await getCoachingAndAdviceFromGCArticles("en");
-  // var gcArticlesCoachingAndAdviceFr = await getCoachingAndAdviceFromGCArticles("fr");
+  var gcArticlesCoachingAndAdviceEn = await getCoachingAndAdviceFromGCArticles("en");
+  var gcArticlesCoachingAndAdviceFr = await getCoachingAndAdviceFromGCArticles("fr");
 
   //GC Articles Product Suite
   // var gcArticlesProductSuiteEn = await getProductSuiteFromGCArticles("en");
@@ -680,8 +731,8 @@ async function run() {
   // Partnerships
   await createAndUpdateFiles(productsPartnershipsEnNew, existingContentEN.data.tree, "en", "products/products/", branchName);
   await createAndUpdateFiles(productsPartnershipsFrNew, existingContentFR.data.tree, "fr", "products/products/", branchName);
-  // await createAndUpdateFiles(gcArticlesCoachingAndAdviceEn, existingContentEN.data.tree, "en", "products/products/", branchName);
-  // await createAndUpdateFiles(gcArticlesCoachingAndAdviceFr, existingContentFR.data.tree, "fr", "products/products/", branchName);
+  await createAndUpdateFiles(gcArticlesCoachingAndAdviceEn, existingContentEN.data.tree, "en", "products/products/", branchName);
+  await createAndUpdateFiles(gcArticlesCoachingAndAdviceFr, existingContentFR.data.tree, "fr", "products/products/", branchName);
   // Platform
   await createAndUpdateFiles(productsPlatformEnNew, existingContentEN.data.tree, "en", "tools-and-resources/platform-tools/", branchName);
   await createAndUpdateFiles(productsPlatformFrNew, existingContentFR.data.tree, "fr", "tools-and-resources/platform-tools/", branchName);
