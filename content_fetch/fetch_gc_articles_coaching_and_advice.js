@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const buildFileName = require('./utils/buildFileName');
+const buildFileName = require('../utils/buildFileName');
 
 var getGCArticlesCoachingAndAdvice = async function (lang) {
     let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "product?_embed&categories=12" : process.env.GC_ARTICLES_ENDPOINT_FR + "product?_embed&categories=22";

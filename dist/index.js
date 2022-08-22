@@ -118,7 +118,7 @@ module.exports = getBlogPostsFromGCArticles;
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 const fetch = __webpack_require__(467);
-const buildFileName = __webpack_require__(6523);
+const buildFileName = __webpack_require__(8948);
 
 var getGCArticlesCoachingAndAdvice = async function (lang) {
     let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "product?_embed&categories=12" : process.env.GC_ARTICLES_ENDPOINT_FR + "product?_embed&categories=22";
@@ -6718,14 +6718,6 @@ var buildFileName = function(title) {
 }
 
 module.exports = buildFileName;
-
-/***/ }),
-
-/***/ 6523:
-/***/ ((module) => {
-
-module.exports = eval("require")("./utils/buildFileName");
-
 
 /***/ }),
 
