@@ -22,6 +22,7 @@ const getJobPostsFromGCArticles = require("./content_fetch/fetch_gc_articles_job
 
 // const getTeamMembersFromGCArticles = require("./content_fetch/fetch_gc_articles_team_members");
 
+const getGuidesFromGCArticles = require("./content_fetch/fetch_gc_articles_guides");
 
 async function closePRs() {
   // Close old auto PRs
@@ -217,6 +218,9 @@ async function run() {
   //GC Articles Team members
   // var gcArticlesTeamMembers = await getTeamMembersFromGCArticles();
 
+  //GC Article Guides
+  var gcArticlesGuidesEn = await getGuidesFromGCArticles("en");
+  var gcArticlesGuidesFr = await getGuidesFromGCArticles("fr");
 
   // Create Ref
   const websiteSha = await getHeadSha("digital-canada-ca", "main");
@@ -264,6 +268,8 @@ async function run() {
   //Guides
   await createAndUpdateFiles(guidesEnNew, existingContentEN.data.tree, "en", "guides/resources/", branchName);
   await createAndUpdateFiles(guidesFrNew, existingContentFR.data.tree, "fr", "guides/resources/", branchName);
+  await createAndUpdateFiles(gcArticlesGuidesEn, existingContentEN.data.tree, "en", "guides/resources/", branchName);
+  await createAndUpdateFiles(gcArticlesGuidesFr, existingContentFR.data.tree, "fr", "guides/resources/", branchName);
 
   // if there is content - compare shas of most recent commit on the branch and main
   let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
