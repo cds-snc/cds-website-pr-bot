@@ -434,10 +434,6 @@ const getProducts = __webpack_require__(303);
 const getProductSuite = __webpack_require__(5847);
 const getGuides = __webpack_require__(1811);
 
-// const getCoachingAndAdviceFromGCArticles = require("./content_fetch/fetch_gc_articles_coaching_and_advice");
-// const getProductSuiteFromGCArticles = require("./content_fetch/fetch_gc_articles_product_suite");
-// const getGuidesFromGCArticles = require("./content_fetch/fetch_gc_articles_guides");
-
 const getBlogPostsFromGCArticles = __webpack_require__(4109);
 
 const getJobPostsFromGCArticles = __webpack_require__(7104);
@@ -639,18 +635,6 @@ async function run() {
   //GC Articles Team members
   // var gcArticlesTeamMembers = await getTeamMembersFromGCArticles();
 
-  //GC Articles Coaching and Advice
-  // var gcArticlesCoachingAndAdviceEn = await getCoachingAndAdviceFromGCArticles("en");
-  // var gcArticlesCoachingAndAdviceFr = await getCoachingAndAdviceFromGCArticles("fr");
-
-  //GC Articles Product Suite
-  // var gcArticlesProductSuiteEn = await getProductSuiteFromGCArticles("en");
-  // var gcArticlesProductSuiteFr = await getProductSuiteFromGCArticles("fr");
-
-  //GC Articles Guides
-  // var gcArticlesGuidesEn = await getGuidesFromGCArticles("en");
-  // var gcArticlesGuidesFr = await getGuidesFromGCArticles("fr");
-
 
   // Create Ref
   const websiteSha = await getHeadSha("digital-canada-ca", "main");
@@ -680,8 +664,6 @@ async function run() {
   // Partnerships
   await createAndUpdateFiles(productsPartnershipsEnNew, existingContentEN.data.tree, "en", "products/products/", branchName);
   await createAndUpdateFiles(productsPartnershipsFrNew, existingContentFR.data.tree, "fr", "products/products/", branchName);
-  // await createAndUpdateFiles(gcArticlesCoachingAndAdviceEn, existingContentEN.data.tree, "en", "products/products/", branchName);
-  // await createAndUpdateFiles(gcArticlesCoachingAndAdviceFr, existingContentFR.data.tree, "fr", "products/products/", branchName);
   // Platform
   await createAndUpdateFiles(productsPlatformEnNew, existingContentEN.data.tree, "en", "tools-and-resources/platform-tools/", branchName);
   await createAndUpdateFiles(productsPlatformFrNew, existingContentFR.data.tree, "fr", "tools-and-resources/platform-tools/", branchName);
@@ -696,14 +678,10 @@ async function run() {
   //Product Suite
   await createAndUpdateFiles(productSuiteEnNew, existingContentEN.data.tree, "en", "product-suite/product/", branchName);
   await createAndUpdateFiles(productSuiteFrNew, existingContentFR.data.tree, "fr", "product-suite/product/", branchName);
-  // await createAndUpdateFiles(gcArticlesProductSuiteEn, existingContentEN.data.tree, "en", "product-suite/product/", branchName);
-  // await createAndUpdateFiles(gcArticlesProductSuiteFr, existingContentFR.data.tree, "fr", "prduct-suite/product/", branchName)
 
   //Guides
   await createAndUpdateFiles(guidesEnNew, existingContentEN.data.tree, "en", "guides/resources/", branchName);
   await createAndUpdateFiles(guidesFrNew, existingContentFR.data.tree, "fr", "guides/resources/", branchName);
-  // await createAndUpdateFiles(gcArticlesGuidesEn, existingContentEN.data.tree, "en", "guides/resources/", branchName);
-  // await createAndUpdateFiles(gcArticlesGuidesFr, existingContentFR.data.tree, "fr", "guides/resources/", branchName);
 
   // if there is content - compare shas of most recent commit on the branch and main
   let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
