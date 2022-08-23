@@ -21,7 +21,7 @@ var getGCArticlesCoachingAndAdvice = async function (lang) {
                 for (pp in parsed.parsed_cds_product_links_related) {
                     let partner = parsed.parsed_cds_product_links_related[pp];
                     out += "  - name: " + partner["text"] + "\n";
-                    out += "    url " + partner["link"] + "\n";
+                    out += "    url: " + partner["link"] + "\n";
                 }
             }
             if (parsed.parsed_cds_product_links.length > 0) {
