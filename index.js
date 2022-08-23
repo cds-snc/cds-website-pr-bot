@@ -16,9 +16,9 @@ const getProducts = require("./content_fetch/fetch_products");
 const getProductSuite = require("./content_fetch/fetch_product_suite");
 const getGuides = require("./content_fetch/fetch_guides");
 
-const getCoachingAndAdviceFromGCArticles = require("./content_fetch/fetch_gc_articles_coaching_and_advice");
+// const getCoachingAndAdviceFromGCArticles = require("./content_fetch/fetch_gc_articles_coaching_and_advice");
 const getProductSuiteFromGCArticles = require("./content_fetch/fetch_gc_articles_product_suite");
-// const getGuidesFromGCArticles = require("./content_fetch/fetch_gc_articles_guides");
+const getGuidesFromGCArticles = require("./content_fetch/fetch_gc_articles_guides");
 
 const getBlogPostsFromGCArticles = require("./content_fetch/fetch_gc_articles_blog_post");
 
@@ -222,16 +222,16 @@ async function run() {
   // var gcArticlesTeamMembers = await getTeamMembersFromGCArticles();
 
   //GC Articles Coaching and Advice
-  var gcArticlesCoachingAndAdviceEn = await getCoachingAndAdviceFromGCArticles("en");
-  var gcArticlesCoachingAndAdviceFr = await getCoachingAndAdviceFromGCArticles("fr");
+  // var gcArticlesCoachingAndAdviceEn = await getCoachingAndAdviceFromGCArticles("en");
+  // var gcArticlesCoachingAndAdviceFr = await getCoachingAndAdviceFromGCArticles("fr");
 
   //GC Articles Product Suite
   var gcArticlesProductSuiteEn = await getProductSuiteFromGCArticles("en");
   var gcArticlesProductSuiteFr = await getProductSuiteFromGCArticles("fr");
 
   //GC Articles Guides
-  // var gcArticlesGuidesEn = await getGuidesFromGCArticles("en");
-  // var gcArticlesGuidesFr = await getGuidesFromGCArticles("fr");
+  var gcArticlesGuidesEn = await getGuidesFromGCArticles("en");
+  var gcArticlesGuidesFr = await getGuidesFromGCArticles("fr");
 
 
   // Create Ref
@@ -262,8 +262,8 @@ async function run() {
   // Partnerships
   await createAndUpdateFiles(productsPartnershipsEnNew, existingContentEN.data.tree, "en", "products/products/", branchName);
   await createAndUpdateFiles(productsPartnershipsFrNew, existingContentFR.data.tree, "fr", "products/products/", branchName);
-  await createAndUpdateFiles(gcArticlesCoachingAndAdviceEn, existingContentEN.data.tree, "en", "products/products/", branchName);
-  await createAndUpdateFiles(gcArticlesCoachingAndAdviceFr, existingContentFR.data.tree, "fr", "products/products/", branchName);
+  // await createAndUpdateFiles(gcArticlesCoachingAndAdviceEn, existingContentEN.data.tree, "en", "products/products/", branchName);
+  // await createAndUpdateFiles(gcArticlesCoachingAndAdviceFr, existingContentFR.data.tree, "fr", "products/products/", branchName);
   // Platform
   await createAndUpdateFiles(productsPlatformEnNew, existingContentEN.data.tree, "en", "tools-and-resources/platform-tools/", branchName);
   await createAndUpdateFiles(productsPlatformFrNew, existingContentFR.data.tree, "fr", "tools-and-resources/platform-tools/", branchName);
@@ -284,8 +284,8 @@ async function run() {
   //Guides
   await createAndUpdateFiles(guidesEnNew, existingContentEN.data.tree, "en", "guides/resources/", branchName);
   await createAndUpdateFiles(guidesFrNew, existingContentFR.data.tree, "fr", "guides/resources/", branchName);
-  // await createAndUpdateFiles(gcArticlesGuidesEn, existingContentEN.data.tree, "en", "guides/resources/", branchName);
-  // await createAndUpdateFiles(gcArticlesGuidesFr, existingContentFR.data.tree, "fr", "guides/resources/", branchName);
+  await createAndUpdateFiles(gcArticlesGuidesEn, existingContentEN.data.tree, "en", "guides/resources/", branchName);
+  await createAndUpdateFiles(gcArticlesGuidesFr, existingContentFR.data.tree, "fr", "guides/resources/", branchName);
 
   // if there is content - compare shas of most recent commit on the branch and main
   let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {

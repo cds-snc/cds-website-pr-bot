@@ -114,14 +114,14 @@ module.exports = getBlogPostsFromGCArticles;
 
 /***/ }),
 
-/***/ 9587:
+/***/ 1830:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 const fetch = __webpack_require__(467);
 const buildFileName = __webpack_require__(8948);
 
-var getGCArticlesCoachingAndAdvice = async function (lang) {
-    let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "product?_embed&categories=12" : process.env.GC_ARTICLES_ENDPOINT_FR + "product?_embed&categories=22";
+var getGCArticlesGuides = async function (lang) {
+    let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "product?_embed&categories=11" : process.env.GC_ARTICLES_ENDPOINT_FR + "product?_embed&categories=18";
     return await fetch(url)
     .then(response => response.json())
     .then(data => {
@@ -131,37 +131,28 @@ var getGCArticlesCoachingAndAdvice = async function (lang) {
             let parsed = JSON.parse(post.meta.cds_product)
             let out = "";
             out += "---\n";
-            out += "title: '" + post.title.rendered + "'\n";
-            out += "translationKey: " + post.slug + "\n";
-            out += "description: >-\n";
+            out += "Title: " + post.title.rendered + "\n";
+            out += "TranslationKey: " + post.slug  + "\n";
+            out += "Description: >-\n";
             out += "  " + parsed.description + "\n";
-            if (parsed.parsed_cds_product_links_related.length > 0) {
-                out += "partners:\n";
-                for (pp in parsed.parsed_cds_product_links_related) {
-                    let partner = parsed.parsed_cds_product_links_related[pp];
-                    out += "  - name: " + partner["text"] + "\n";
-                    out += "    url: " + partner["link"] + "\n";
-                }
-            }
-            if (parsed.parsed_cds_product_links.length > 0) {
-                out += "links:\n";
-                for (l in parsed.parsed_cds_product_links) {
-                    let link = parsed.parsed_cds_product_links[l];
-                    out += "  - name: " + link["text"] + "\n";
-                    out += "    url: " + link["link"] + "\n"; 
-                }
-            }
-            out += "---\n";
+            out += "ButtonText: " + parsed.button_text + "\n";
+            out += "ButtonAria: " + parsed.button_aria + "\n";
+            out += "Weight: " + parsed.weight + "\n";
+            out += "TagID: " + parsed.tag_id + "\n";
+            out += "LinkToGuide: " + parsed.button_link + "\n";
+            out += "---\n\n";
 
-            let slug = buildFileName(post.title.rendered)
-            files.push({body: out, fileName: slug + ".md"})
+            let slug = buildFileName(post.title.rendered);
+            files.push({body: out, fileName: slug + ".md"});
         }
-        return files;
+        return files
     }
-    )
+    ).catch((e) => {
+        console.error(e)
+    })
 }
 
-module.exports = getGCArticlesCoachingAndAdvice
+module.exports = getGCArticlesGuides
 
 /***/ }),
 
@@ -530,9 +521,9 @@ const getProducts = __webpack_require__(303);
 const getProductSuite = __webpack_require__(5847);
 const getGuides = __webpack_require__(1811);
 
-const getCoachingAndAdviceFromGCArticles = __webpack_require__(9587);
+// const getCoachingAndAdviceFromGCArticles = require("./content_fetch/fetch_gc_articles_coaching_and_advice");
 const getProductSuiteFromGCArticles = __webpack_require__(6096);
-// const getGuidesFromGCArticles = require("./content_fetch/fetch_gc_articles_guides");
+const getGuidesFromGCArticles = __webpack_require__(1830);
 
 const getBlogPostsFromGCArticles = __webpack_require__(4109);
 
@@ -736,16 +727,16 @@ async function run() {
   // var gcArticlesTeamMembers = await getTeamMembersFromGCArticles();
 
   //GC Articles Coaching and Advice
-  var gcArticlesCoachingAndAdviceEn = await getCoachingAndAdviceFromGCArticles("en");
-  var gcArticlesCoachingAndAdviceFr = await getCoachingAndAdviceFromGCArticles("fr");
+  // var gcArticlesCoachingAndAdviceEn = await getCoachingAndAdviceFromGCArticles("en");
+  // var gcArticlesCoachingAndAdviceFr = await getCoachingAndAdviceFromGCArticles("fr");
 
   //GC Articles Product Suite
   var gcArticlesProductSuiteEn = await getProductSuiteFromGCArticles("en");
   var gcArticlesProductSuiteFr = await getProductSuiteFromGCArticles("fr");
 
   //GC Articles Guides
-  // var gcArticlesGuidesEn = await getGuidesFromGCArticles("en");
-  // var gcArticlesGuidesFr = await getGuidesFromGCArticles("fr");
+  var gcArticlesGuidesEn = await getGuidesFromGCArticles("en");
+  var gcArticlesGuidesFr = await getGuidesFromGCArticles("fr");
 
 
   // Create Ref
@@ -776,8 +767,8 @@ async function run() {
   // Partnerships
   await createAndUpdateFiles(productsPartnershipsEnNew, existingContentEN.data.tree, "en", "products/products/", branchName);
   await createAndUpdateFiles(productsPartnershipsFrNew, existingContentFR.data.tree, "fr", "products/products/", branchName);
-  await createAndUpdateFiles(gcArticlesCoachingAndAdviceEn, existingContentEN.data.tree, "en", "products/products/", branchName);
-  await createAndUpdateFiles(gcArticlesCoachingAndAdviceFr, existingContentFR.data.tree, "fr", "products/products/", branchName);
+  // await createAndUpdateFiles(gcArticlesCoachingAndAdviceEn, existingContentEN.data.tree, "en", "products/products/", branchName);
+  // await createAndUpdateFiles(gcArticlesCoachingAndAdviceFr, existingContentFR.data.tree, "fr", "products/products/", branchName);
   // Platform
   await createAndUpdateFiles(productsPlatformEnNew, existingContentEN.data.tree, "en", "tools-and-resources/platform-tools/", branchName);
   await createAndUpdateFiles(productsPlatformFrNew, existingContentFR.data.tree, "fr", "tools-and-resources/platform-tools/", branchName);
@@ -798,8 +789,8 @@ async function run() {
   //Guides
   await createAndUpdateFiles(guidesEnNew, existingContentEN.data.tree, "en", "guides/resources/", branchName);
   await createAndUpdateFiles(guidesFrNew, existingContentFR.data.tree, "fr", "guides/resources/", branchName);
-  // await createAndUpdateFiles(gcArticlesGuidesEn, existingContentEN.data.tree, "en", "guides/resources/", branchName);
-  // await createAndUpdateFiles(gcArticlesGuidesFr, existingContentFR.data.tree, "fr", "guides/resources/", branchName);
+  await createAndUpdateFiles(gcArticlesGuidesEn, existingContentEN.data.tree, "en", "guides/resources/", branchName);
+  await createAndUpdateFiles(gcArticlesGuidesFr, existingContentFR.data.tree, "fr", "guides/resources/", branchName);
 
   // if there is content - compare shas of most recent commit on the branch and main
   let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
