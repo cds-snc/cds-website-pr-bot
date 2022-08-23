@@ -2,7 +2,7 @@ const fetch = require('node-fetch');
 const buildFileName = require("../utils/buildFileName");
 
 var getGCArticlesGuides = async function (lang) {
-    let url = lang == "en" ? "https://articles.alpha.canada.ca/cds-snc/wp-json/wp/v2/product?_embed&categories=11" : "https://articles.alpha.canada.ca/cds-snc/fr/wp-json/wp/v2/product?_embed&categories=18";
+    let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "product?_embed&categories=11" : process.env.GC_ARTICLES_ENDPOINT_FR + "product?_embed&categories=18";
     return await fetch(url)
     .then(response => response.json())
     .then(data => {

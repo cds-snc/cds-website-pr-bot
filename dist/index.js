@@ -63,7 +63,7 @@ const fetch = __webpack_require__(467);
 const buildFileName = __webpack_require__(8948);
 
 var getBlogPostsFromGCArticles = async function(lang) {
-  let url = lang == "en" ? "https://articles.alpha.canada.ca/cds-snc/wp-json/wp/v2/posts?markdown=true&_embed" : "https://articles.alpha.canada.ca/cds-snc/fr/wp-json/wp/v2/posts?markdown=true&_embed"
+  let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "posts?markdown=true&_embed" : process.env.GC_ARTICLES_ENDPOINT_FR + "posts?markdown=true&_embed"
   return await fetch(url)
   .then(response => response.json())
   .then(
@@ -121,7 +121,7 @@ const fetch = __webpack_require__(467);
 const buildFileName = __webpack_require__(8948);
 
 var getGCArticlesGuides = async function (lang) {
-    let url = lang == "en" ? "https://articles.alpha.canada.ca/cds-snc/wp-json/wp/v2/product?_embed&categories=11" : "https://articles.alpha.canada.ca/cds-snc/fr/wp-json/wp/v2/product?_embed&categories=18";
+    let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "product?_embed&categories=11" : process.env.GC_ARTICLES_ENDPOINT_FR + "product?_embed&categories=18";
     return await fetch(url)
     .then(response => response.json())
     .then(data => {
@@ -163,7 +163,7 @@ const fetch = __webpack_require__(467);
 const buildFileName = __webpack_require__(8948);
 
 var getJobPostsFromGCArticles = async function (lang) {
-    let url = lang == "en" ? "https://articles.alpha.canada.ca/cds-snc/wp-json/wp/v2/job?markdown=true&_embed" : "https://articles.alpha.canada.ca/cds-snc/fr/wp-json/wp/v2/job?markdown=true&_embed"
+    let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "job?markdown=true&_embed" : process.env.GC_ARTICLES_ENDPOINT_FR + "job?markdown=true&_embed"
     return await fetch(url)
     .then(response => response.json())
     .then(
