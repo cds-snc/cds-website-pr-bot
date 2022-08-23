@@ -114,48 +114,6 @@ module.exports = getBlogPostsFromGCArticles;
 
 /***/ }),
 
-/***/ 1830:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-const fetch = __webpack_require__(467);
-const buildFileName = __webpack_require__(8948);
-
-var getGCArticlesGuides = async function (lang) {
-    let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "product?_embed&categories=11" : process.env.GC_ARTICLES_ENDPOINT_FR + "product?_embed&categories=18";
-    return await fetch(url)
-    .then(response => response.json())
-    .then(data => {
-        let files = [];
-        for (p in data) {
-            let post = data[p];
-            let parsed = JSON.parse(post.meta.cds_product)
-            let out = "";
-            out += "---\n";
-            out += "Title: " + post.title.rendered + "\n";
-            out += "TranslationKey: " + post.slug  + "\n";
-            out += "Description: >-\n";
-            out += "  " + parsed.description + "\n";
-            out += "ButtonText: " + parsed.button_text + "\n";
-            out += "ButtonAria: " + parsed.button_aria + "\n";
-            out += "Weight: " + parsed.weight + "\n";
-            out += "TagID: " + parsed.tag_id + "\n";
-            out += "LinkToGuide: " + parsed.button_link + "\n";
-            out += "---\n\n";
-
-            let slug = buildFileName(post.title.rendered);
-            files.push({body: out, fileName: slug + ".md"});
-        }
-        return files
-    }
-    ).catch((e) => {
-        console.error(e)
-    })
-}
-
-module.exports = getGCArticlesGuides
-
-/***/ }),
-
 /***/ 7104:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
@@ -195,51 +153,6 @@ var getJobPostsFromGCArticles = async function (lang) {
 }
 
 module.exports = getJobPostsFromGCArticles;
-
-/***/ }),
-
-/***/ 6096:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-const fetch = __webpack_require__(467);
-const buildFileName = __webpack_require__(8948);
-
-var getGCArticlesProductSuite = async function (lang) {
-    let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "product?_embed&categories=13" : process.env.GC_ARTICLES_ENDPOINT_FR + "product?_embed&categories=21";
-    return await fetch(url)
-    .then(response => response.json())
-    .then(data => {
-        let files = [];
-        for (p in data) {
-            let post = data[p];
-            let parsed = JSON.parse(post.meta.cds_product)
-            let out = "";
-            out += "---\n";
-            out += "Title: " + post.title.rendered + "\n";
-            out += "Subtitle: " + parsed.subtitle + "\n";
-            out += "TranslationKey: " + post.slug  + "\n";
-            out += "Description: >-\n";
-            out += "  " + parsed.description + "\n";
-            out += "SecondDescription: >-\n";
-            out += "  " + parsed.description + "\n";
-            out += "ButtonText: " + parsed.button_text + "\n";
-            out += "ButtonAria: " + parsed.button_aria + "\n";
-            out += "Weight: " + parsed.weight + "\n";
-            out += "TagID: " + parsed.tag_id + "\n";
-            out += "LinkToProductSuite: " + parsed.button_link + "\n";
-            out += "---\n\n";
-
-            let slug = buildFileName(post.title.rendered);
-            files.push({body: out, fileName: slug + ".md"});
-        }
-        return files
-    }
-    ).catch((e) => {
-        console.error(e)
-    })
-}
-
-module.exports = getGCArticlesProductSuite;
 
 /***/ }),
 
@@ -522,8 +435,8 @@ const getProductSuite = __webpack_require__(5847);
 const getGuides = __webpack_require__(1811);
 
 // const getCoachingAndAdviceFromGCArticles = require("./content_fetch/fetch_gc_articles_coaching_and_advice");
-const getProductSuiteFromGCArticles = __webpack_require__(6096);
-const getGuidesFromGCArticles = __webpack_require__(1830);
+// const getProductSuiteFromGCArticles = require("./content_fetch/fetch_gc_articles_product_suite");
+// const getGuidesFromGCArticles = require("./content_fetch/fetch_gc_articles_guides");
 
 const getBlogPostsFromGCArticles = __webpack_require__(4109);
 
@@ -731,12 +644,12 @@ async function run() {
   // var gcArticlesCoachingAndAdviceFr = await getCoachingAndAdviceFromGCArticles("fr");
 
   //GC Articles Product Suite
-  var gcArticlesProductSuiteEn = await getProductSuiteFromGCArticles("en");
-  var gcArticlesProductSuiteFr = await getProductSuiteFromGCArticles("fr");
+  // var gcArticlesProductSuiteEn = await getProductSuiteFromGCArticles("en");
+  // var gcArticlesProductSuiteFr = await getProductSuiteFromGCArticles("fr");
 
   //GC Articles Guides
-  var gcArticlesGuidesEn = await getGuidesFromGCArticles("en");
-  var gcArticlesGuidesFr = await getGuidesFromGCArticles("fr");
+  // var gcArticlesGuidesEn = await getGuidesFromGCArticles("en");
+  // var gcArticlesGuidesFr = await getGuidesFromGCArticles("fr");
 
 
   // Create Ref
@@ -783,14 +696,14 @@ async function run() {
   //Product Suite
   await createAndUpdateFiles(productSuiteEnNew, existingContentEN.data.tree, "en", "product-suite/product/", branchName);
   await createAndUpdateFiles(productSuiteFrNew, existingContentFR.data.tree, "fr", "product-suite/product/", branchName);
-  await createAndUpdateFiles(gcArticlesProductSuiteEn, existingContentEN.data.tree, "en", "product-suite/product/", branchName);
-  await createAndUpdateFiles(gcArticlesProductSuiteFr, existingContentFR.data.tree, "fr", "prduct-suite/product/", branchName)
+  // await createAndUpdateFiles(gcArticlesProductSuiteEn, existingContentEN.data.tree, "en", "product-suite/product/", branchName);
+  // await createAndUpdateFiles(gcArticlesProductSuiteFr, existingContentFR.data.tree, "fr", "prduct-suite/product/", branchName)
 
   //Guides
   await createAndUpdateFiles(guidesEnNew, existingContentEN.data.tree, "en", "guides/resources/", branchName);
   await createAndUpdateFiles(guidesFrNew, existingContentFR.data.tree, "fr", "guides/resources/", branchName);
-  await createAndUpdateFiles(gcArticlesGuidesEn, existingContentEN.data.tree, "en", "guides/resources/", branchName);
-  await createAndUpdateFiles(gcArticlesGuidesFr, existingContentFR.data.tree, "fr", "guides/resources/", branchName);
+  // await createAndUpdateFiles(gcArticlesGuidesEn, existingContentEN.data.tree, "en", "guides/resources/", branchName);
+  // await createAndUpdateFiles(gcArticlesGuidesFr, existingContentFR.data.tree, "fr", "guides/resources/", branchName);
 
   // if there is content - compare shas of most recent commit on the branch and main
   let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
