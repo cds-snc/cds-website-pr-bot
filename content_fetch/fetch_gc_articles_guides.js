@@ -1,7 +1,9 @@
 const fetch = require('node-fetch');
 const buildFileName = require("../utils/buildFileName");
+const core = require('@actions/core');
 
 var getGCArticlesGuides = async function (lang) {
+    
     let url = lang == "en" ? "https://articles.alpha.canada.ca/cds-snc/wp-json/wp/v2/product?_embed&categories=11" : "https://articles.alpha.canada.ca/cds-snc/fr/wp-json/wp/v2/product?_embed&categories=18";
     return await fetch(url)
     .then(response => response.json())
@@ -24,6 +26,7 @@ var getGCArticlesGuides = async function (lang) {
             out += "---\n\n";
 
             let slug = buildFileName(post.title.rendered);
+            core.setOutput("title", post.title.rendered);
             files.push({body: out, fileName: slug + ".md"});
         }
         return files

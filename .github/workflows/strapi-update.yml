@@ -9,3 +9,8 @@ jobs:
       env:
         TOKEN: ${{ secrets.TOKEN }}
         STRAPI_ENDPOINT: http://cms-load-balancer-986685684.ca-central-1.elb.amazonaws.com/
+    - name: Test Message
+      uses: ./
+      id: test
+    - name: Log Title
+      run: echo "The title for guides is ${{ steps.test.outputs.title }}"       
