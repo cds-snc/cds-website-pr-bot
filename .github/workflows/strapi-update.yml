@@ -2,15 +2,21 @@ name: Update Website Content
 on: repository_dispatch
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Logs
+
+    steps:
+      - name: Test message
+        uses: ./
+        id: test
+      - name: Log Title
+        run: echo "The title for guides is ${{ steps.test.outputs.title }}"  
+        
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: cds-snc/cds-website-pr-bot@main
       env:
         TOKEN: ${{ secrets.TOKEN }}
-        STRAPI_ENDPOINT: http://cms-load-balancer-986685684.ca-central-1.elb.amazonaws.com/
-    - name: Test Message
-      uses: ./
-      id: test
-    - name: Log Title
-      run: echo "The title for guides is ${{ steps.test.outputs.title }}"       
+        STRAPI_ENDPOINT: http://cms-load-balancer-986685684.ca-central-1.elb.amazonaws.com/       
