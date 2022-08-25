@@ -1,20 +1,6 @@
 name: Update Website Content
 on: repository_dispatch
-
 jobs:
-  log_title_job:
-    runs-on: ubuntu-latest
-    name: Logs
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Test message
-        uses: ./
-        id: test
-      - name: Log Title
-        run: echo "The title for guides is ${{ steps.test.outputs.title }}"  
-        
   build:
     runs-on: ubuntu-latest
     steps:

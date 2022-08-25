@@ -1,6 +1,5 @@
 const fetch = require('node-fetch');
 const buildFileName = require("../utils/buildFileName");
-const core = require('@actions/core');
 
 var getGCArticlesGuides = async function (lang) {
     
@@ -26,7 +25,7 @@ var getGCArticlesGuides = async function (lang) {
             out += "---\n\n";
 
             let slug = buildFileName(post.title.rendered);
-            core.setOutput("title", post.title.rendered);
+            
             files.push({body: out, fileName: slug + ".md"});
         }
         return files
