@@ -2,7 +2,7 @@ name: Update Website Content
 on: repository_dispatch
 
 jobs:
-  test:
+  log_title_job:
     runs-on: ubuntu-latest
     name: Logs
 
