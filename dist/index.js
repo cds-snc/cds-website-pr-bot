@@ -198,6 +198,7 @@ var getGCArticlesGuides = async function (lang) {
             out += "---\n\n";
 
             let slug = buildFileName(post.title.rendered);
+            
             files.push({body: out, fileName: slug + ".md"});
         }
         return files

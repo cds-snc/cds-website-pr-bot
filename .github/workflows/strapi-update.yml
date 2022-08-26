@@ -1,6 +1,5 @@
 name: Update Website Content
 on: repository_dispatch
-
 jobs:
   build:
     runs-on: ubuntu-latest

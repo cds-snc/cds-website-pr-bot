@@ -3,6 +3,7 @@ const buildFileName = require("../utils/buildFileName");
 
 var getGCArticlesGuides = async function (lang) {
     let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "product?_embed&categories=11" : process.env.GC_ARTICLES_ENDPOINT_FR + "product?_embed&categories=18";
+
     return await fetch(url)
     .then(response => response.json())
     .then(data => {
@@ -24,6 +25,7 @@ var getGCArticlesGuides = async function (lang) {
             out += "---\n\n";
 
             let slug = buildFileName(post.title.rendered);
+            
             files.push({body: out, fileName: slug + ".md"});
         }
         return files
