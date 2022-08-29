@@ -22,6 +22,8 @@ const getJobPostsFromGCArticles = require("./content_fetch/fetch_gc_articles_job
 
 // const getTeamMembersFromGCArticles = require("./content_fetch/fetch_gc_articles_team_members");
 
+const getCoachingAndAdviceFromGCArticles = require("./content_fetch/fetch_gc_articles_coaching_and_advice");
+const getProductSuiteFromGCArticles = require("./content_fetch/fetch_gc_articles_product_suite");
 const getGuidesFromGCArticles = require("./content_fetch/fetch_gc_articles_guides");
 
 async function closePRs() {
@@ -218,6 +220,13 @@ async function run() {
   //GC Articles Team members
   // var gcArticlesTeamMembers = await getTeamMembersFromGCArticles();
 
+  //GC Articles Coaching and Advice
+  var gcArticlesCoachingAndAdviceEn = await getCoachingAndAdviceFromGCArticles("en");
+  var gcArticlesCoachingAndAdviceFr = await getCoachingAndAdviceFromGCArticles("fr");
+
+  //GC Articles Product Suite
+  var gcArticlesProductSuiteEn = await getProductSuiteFromGCArticles("en");
+  var gcArticlesProductSuiteFr = await getProductSuiteFromGCArticles("fr");
   //GC Article Guides
   var gcArticlesGuidesEn = await getGuidesFromGCArticles("en");
   var gcArticlesGuidesFr = await getGuidesFromGCArticles("fr");
@@ -250,6 +259,8 @@ async function run() {
   // Partnerships
   await createAndUpdateFiles(productsPartnershipsEnNew, existingContentEN.data.tree, "en", "products/products/", branchName);
   await createAndUpdateFiles(productsPartnershipsFrNew, existingContentFR.data.tree, "fr", "products/products/", branchName);
+  await createAndUpdateFiles(gcArticlesCoachingAndAdviceEn, existingContentEN.data.tree, "en", "products/products/", branchName);
+  await createAndUpdateFiles(gcArticlesCoachingAndAdviceFr, existingContentFR.data.tree, "fr", "products/products/", branchName);
   // Platform
   await createAndUpdateFiles(productsPlatformEnNew, existingContentEN.data.tree, "en", "tools-and-resources/platform-tools/", branchName);
   await createAndUpdateFiles(productsPlatformFrNew, existingContentFR.data.tree, "fr", "tools-and-resources/platform-tools/", branchName);
@@ -264,6 +275,8 @@ async function run() {
   //Product Suite
   await createAndUpdateFiles(productSuiteEnNew, existingContentEN.data.tree, "en", "product-suite/product/", branchName);
   await createAndUpdateFiles(productSuiteFrNew, existingContentFR.data.tree, "fr", "product-suite/product/", branchName);
+  await createAndUpdateFiles(gcArticlesProductSuiteEn, existingContentEN.data.tree, "en", "product-suite/product/", branchName);
+  await createAndUpdateFiles(gcArticlesProductSuiteFr, existingContentFR.data.tree, "fr", "prduct-suite/product/", branchName)
 
   //Guides
   await createAndUpdateFiles(guidesEnNew, existingContentEN.data.tree, "en", "guides/resources/", branchName);

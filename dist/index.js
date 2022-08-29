@@ -63,7 +63,7 @@ const fetch = __webpack_require__(467);
 const buildFileName = __webpack_require__(8948);
 
 var getBlogPostsFromGCArticles = async function(lang) {
-  let url = lang == "en" ? "https://articles.alpha.canada.ca/cds-snc/wp-json/wp/v2/posts?markdown=true&_embed" : "https://articles.alpha.canada.ca/cds-snc/fr/wp-json/wp/v2/posts?markdown=true&_embed"
+  let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "posts?markdown=true&_embed" : process.env.GC_ARTICLES_ENDPOINT_FR + "posts?markdown=true&_embed"
   return await fetch(url)
   .then(response => response.json())
   .then(
@@ -114,6 +114,61 @@ module.exports = getBlogPostsFromGCArticles;
 
 /***/ }),
 
+/***/ 9587:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const fetch = __webpack_require__(467);
+const buildFileName = __webpack_require__(8948);
+
+var getGCArticlesCoachingAndAdvice = async function (lang) {
+    let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "product?_embed&categories=12" : process.env.GC_ARTICLES_ENDPOINT_FR + "product?_embed&categories=22";
+    return await fetch(url)
+    .then(response => response.json())
+    .then(data => {
+        let files = [];
+        for (p in data) {
+            let post = data[p];
+            let parsed = JSON.parse(post.meta.cds_product)
+            let out = "";
+            out += "---\n";
+            out += "title: '" + post.title.rendered + "'\n";
+            out += "translationKey: " + post.slug + "\n";
+            out += "description: >-\n";
+            out += "  " + parsed.description + "\n";
+
+            if (parsed.button_link) {
+                out += "product-url: " + parsed.button_link + "\n";
+            }
+            if (parsed.parsed_cds_product_links_related.length > 0) {
+                out += "partners:\n";
+                for (pp in parsed.parsed_cds_product_links_related) {
+                    let partner = parsed.parsed_cds_product_links_related[pp];
+                    out += "  - name: " + partner["text"] + "\n";
+                    out += "    url: " + partner["link"] + "\n";
+                }
+            }
+            if (parsed.parsed_cds_product_links.length > 0) {
+                out += "links:\n";
+                for (l in parsed.parsed_cds_product_links) {
+                    let link = parsed.parsed_cds_product_links[l];
+                    out += "  - name: " + link["text"] + "\n";
+                    out += "    url: " + link["link"] + "\n"; 
+                }
+            }
+            out += "---\n";
+
+            let slug = buildFileName(post.title.rendered)
+            files.push({body: out, fileName: slug + ".md"})
+        }
+        return files;
+    }
+    )
+}
+
+module.exports = getGCArticlesCoachingAndAdvice
+
+/***/ }),
+
 /***/ 1830:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
@@ -121,8 +176,7 @@ const fetch = __webpack_require__(467);
 const buildFileName = __webpack_require__(8948);
 
 var getGCArticlesGuides = async function (lang) {
-    
-    let url = lang == "en" ? "https://articles.alpha.canada.ca/cds-snc/wp-json/wp/v2/product?_embed&categories=11" : "https://articles.alpha.canada.ca/cds-snc/fr/wp-json/wp/v2/product?_embed&categories=18";
+    let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "product?_embed&categories=11" : process.env.GC_ARTICLES_ENDPOINT_FR + "product?_embed&categories=18";
     return await fetch(url)
     .then(response => response.json())
     .then(data => {
@@ -165,7 +219,7 @@ const fetch = __webpack_require__(467);
 const buildFileName = __webpack_require__(8948);
 
 var getJobPostsFromGCArticles = async function (lang) {
-    let url = lang == "en" ? "https://articles.alpha.canada.ca/cds-snc/wp-json/wp/v2/job?markdown=true&_embed" : "https://articles.alpha.canada.ca/cds-snc/fr/wp-json/wp/v2/job?markdown=true&_embed"
+    let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "job?markdown=true&_embed" : process.env.GC_ARTICLES_ENDPOINT_FR + "job?markdown=true&_embed"
     return await fetch(url)
     .then(response => response.json())
     .then(
@@ -197,6 +251,51 @@ var getJobPostsFromGCArticles = async function (lang) {
 }
 
 module.exports = getJobPostsFromGCArticles;
+
+/***/ }),
+
+/***/ 6096:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const fetch = __webpack_require__(467);
+const buildFileName = __webpack_require__(8948);
+
+var getGCArticlesProductSuite = async function (lang) {
+    let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "product?_embed&categories=13" : process.env.GC_ARTICLES_ENDPOINT_FR + "product?_embed&categories=21";
+    return await fetch(url)
+    .then(response => response.json())
+    .then(data => {
+        let files = [];
+        for (p in data) {
+            let post = data[p];
+            let parsed = JSON.parse(post.meta.cds_product)
+            let out = "";
+            out += "---\n";
+            out += "Title: " + post.title.rendered + "\n";
+            out += "Subtitle: " + parsed.subtitle + "\n";
+            out += "TranslationKey: " + post.slug  + "\n";
+            out += "Description: >-\n";
+            out += "  " + parsed.description + "\n";
+            out += "SecondDescription: >-\n";
+            out += "  " + parsed.description + "\n";
+            out += "ButtonText: " + parsed.button_text + "\n";
+            out += "ButtonAria: " + parsed.button_aria + "\n";
+            out += "Weight: " + parsed.weight + "\n";
+            out += "TagID: " + parsed.tag_id + "\n";
+            out += "LinkToProductSuite: " + parsed.button_link + "\n";
+            out += "---\n\n";
+
+            let slug = buildFileName(post.title.rendered);
+            files.push({body: out, fileName: slug + ".md"});
+        }
+        return files
+    }
+    ).catch((e) => {
+        console.error(e)
+    })
+}
+
+module.exports = getGCArticlesProductSuite;
 
 /***/ }),
 
@@ -484,6 +583,8 @@ const getJobPostsFromGCArticles = __webpack_require__(7104);
 
 // const getTeamMembersFromGCArticles = require("./content_fetch/fetch_gc_articles_team_members");
 
+const getCoachingAndAdviceFromGCArticles = __webpack_require__(9587);
+const getProductSuiteFromGCArticles = __webpack_require__(6096);
 const getGuidesFromGCArticles = __webpack_require__(1830);
 
 async function closePRs() {
@@ -680,6 +781,13 @@ async function run() {
   //GC Articles Team members
   // var gcArticlesTeamMembers = await getTeamMembersFromGCArticles();
 
+  //GC Articles Coaching and Advice
+  var gcArticlesCoachingAndAdviceEn = await getCoachingAndAdviceFromGCArticles("en");
+  var gcArticlesCoachingAndAdviceFr = await getCoachingAndAdviceFromGCArticles("fr");
+
+  //GC Articles Product Suite
+  var gcArticlesProductSuiteEn = await getProductSuiteFromGCArticles("en");
+  var gcArticlesProductSuiteFr = await getProductSuiteFromGCArticles("fr");
   //GC Article Guides
   var gcArticlesGuidesEn = await getGuidesFromGCArticles("en");
   var gcArticlesGuidesFr = await getGuidesFromGCArticles("fr");
@@ -712,6 +820,8 @@ async function run() {
   // Partnerships
   await createAndUpdateFiles(productsPartnershipsEnNew, existingContentEN.data.tree, "en", "products/products/", branchName);
   await createAndUpdateFiles(productsPartnershipsFrNew, existingContentFR.data.tree, "fr", "products/products/", branchName);
+  await createAndUpdateFiles(gcArticlesCoachingAndAdviceEn, existingContentEN.data.tree, "en", "products/products/", branchName);
+  await createAndUpdateFiles(gcArticlesCoachingAndAdviceFr, existingContentFR.data.tree, "fr", "products/products/", branchName);
   // Platform
   await createAndUpdateFiles(productsPlatformEnNew, existingContentEN.data.tree, "en", "tools-and-resources/platform-tools/", branchName);
   await createAndUpdateFiles(productsPlatformFrNew, existingContentFR.data.tree, "fr", "tools-and-resources/platform-tools/", branchName);
@@ -726,6 +836,8 @@ async function run() {
   //Product Suite
   await createAndUpdateFiles(productSuiteEnNew, existingContentEN.data.tree, "en", "product-suite/product/", branchName);
   await createAndUpdateFiles(productSuiteFrNew, existingContentFR.data.tree, "fr", "product-suite/product/", branchName);
+  await createAndUpdateFiles(gcArticlesProductSuiteEn, existingContentEN.data.tree, "en", "product-suite/product/", branchName);
+  await createAndUpdateFiles(gcArticlesProductSuiteFr, existingContentFR.data.tree, "fr", "prduct-suite/product/", branchName)
 
   //Guides
   await createAndUpdateFiles(guidesEnNew, existingContentEN.data.tree, "en", "guides/resources/", branchName);

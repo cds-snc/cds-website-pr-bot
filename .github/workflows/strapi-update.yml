@@ -7,4 +7,6 @@ jobs:
     - uses: cds-snc/cds-website-pr-bot@main
       env:
         TOKEN: ${{ secrets.TOKEN }}
-        STRAPI_ENDPOINT: http://cms-load-balancer-986685684.ca-central-1.elb.amazonaws.com/       
+        STRAPI_ENDPOINT: http://cms-load-balancer-986685684.ca-central-1.elb.amazonaws.com/
+        GC_ARTICLES_ENDPOINT_EN: https://articles.alpha.canada.ca/cds-snc/wp-json/wp/v2/
+        GC_ARTICLES_ENDPOINT_FR: https://articles.alpha.canada.ca/cds-snc/fr/wp-json/wp/v2/
