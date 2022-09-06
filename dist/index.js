@@ -177,6 +177,7 @@ const buildFileName = __webpack_require__(8948);
 
 var getGCArticlesGuides = async function (lang) {
     let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "product?_embed&categories=11" : process.env.GC_ARTICLES_ENDPOINT_FR + "product?_embed&categories=18";
+
     return await fetch(url)
     .then(response => response.json())
     .then(data => {
@@ -380,52 +381,6 @@ module.exports = getJobPosts;
 
 /***/ }),
 
-/***/ 5847:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-const fetch = __webpack_require__(467);
-const buildFileName = __webpack_require__(8948);
-
-var getProductSuite = async function(lang) {
-    return await fetch(process.env.STRAPI_ENDPOINT  + "product-suite-" + lang + "s")
-    .then(response => response.json())
-    .then(
-        data => {
-            let files = [];
-            for (p in data) {
-                let post = data[p]
-                let out = "";
-                out += "---\n";
-                out += "Title: " + post.Title + "\n";
-                out += "Subtitle: " + post.Subtitle + "\n";
-                out += "TranslationKey: " + post.TranslationID + "\n";
-                out += "Description: >-\n";
-                out += "  " + post.Description + "\n";
-                out += "SecondDescription: >-\n";
-                out += "  " + post.SecondDescription + "\n";
-                out += "ButtonText: " + post.ButtonText + "\n"
-                out += "ButtonAria: " + post.ButtonAria + "\n"
-                out += "Weight: " + post.Weight + "\n"
-                out += "LinkToProductSuite: " + post.LinkToProductSuite + "\n"
-                out += "TagID: " + post.TagID + "\n"
-                out += "---\n\n";
-
-                let slug = buildFileName(post.Title);
-                files.push({body: out, fileName: slug + ".md"})
-            }
-
-            return files
-        }
-    ).catch((e) => {
-        console.error(e)
-    }) 
-
-}
-
-module.exports  = getProductSuite;
-
-/***/ }),
-
 /***/ 303:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
@@ -574,7 +529,7 @@ const getJobPosts = __webpack_require__(2866);
 const getTeamMembers = __webpack_require__(3466);
 const getProducts = __webpack_require__(303);
 
-const getProductSuite = __webpack_require__(5847);
+// const getProductSuite = require("./content_fetch/fetch_product_suite");
 const getGuides = __webpack_require__(1811);
 
 const getBlogPostsFromGCArticles = __webpack_require__(4109);
@@ -763,8 +718,8 @@ async function run() {
   var resourcesFrNew = await getProducts("fr", "products-resources-");
 
   //Product Suite
-  var productSuiteEnNew = await getProductSuite("en")
-  var productSuiteFrNew = await getProductSuite("fr")
+  // var productSuiteEnNew = await getProductSuite("en")
+  // var productSuiteFrNew = await getProductSuite("fr")
 
   //Guides
   var guidesEnNew = await getGuides("en")
@@ -834,8 +789,8 @@ async function run() {
   // await updateTeamFile(gcArticlesTeamMembers, branchName);
 
   //Product Suite
-  await createAndUpdateFiles(productSuiteEnNew, existingContentEN.data.tree, "en", "product-suite/product/", branchName);
-  await createAndUpdateFiles(productSuiteFrNew, existingContentFR.data.tree, "fr", "product-suite/product/", branchName);
+  // await createAndUpdateFiles(productSuiteEnNew, existingContentEN.data.tree, "en", "product-suite/product/", branchName);
+  // await createAndUpdateFiles(productSuiteFrNew, existingContentFR.data.tree, "fr", "product-suite/product/", branchName);
   await createAndUpdateFiles(gcArticlesProductSuiteEn, existingContentEN.data.tree, "en", "product-suite/product/", branchName);
   await createAndUpdateFiles(gcArticlesProductSuiteFr, existingContentFR.data.tree, "fr", "prduct-suite/product/", branchName)
 
