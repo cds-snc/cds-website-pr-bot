@@ -296,7 +296,7 @@ async function run() {
     sha: "main"
   })
   if (branchcommit.data && branchcommit.data.sha != maincommit.data.sha) {
-    closePRs()
+    // closePRs()
 
     // Make the new PR
     await octokit.pulls.create({
