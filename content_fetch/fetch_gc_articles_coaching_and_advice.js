@@ -1,9 +1,18 @@
 const fetch = require('node-fetch');
 const buildFileName = require('../utils/buildFileName');
+const {Headers} = require('node-fetch');
+var myHeaders = new Headers();
+myHeaders.append('pragma', 'no-cache');
+myHeaders.append('cache-control', 'no-store');
+
+var meta = {
+    method: 'GET',
+    headers: myHeaders
+}
 
 var getGCArticlesCoachingAndAdvice = async function (lang) {
     let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "product?_embed&categories=12" : process.env.GC_ARTICLES_ENDPOINT_FR + "product?_embed&categories=22";
-    return await fetch(url)
+    return await fetch(url, meta)
     .then(response => response.json())
     .then(data => {
         let files = [];
