@@ -119,11 +119,19 @@ module.exports = getBlogPostsFromGCArticles;
 
 const fetch = __webpack_require__(467);
 const buildFileName = __webpack_require__(8948);
-const ms = Date.now();
+const {Headers} = __webpack_require__(467);
+var myHeaders = new Headers();
+myHeaders.append('Pragma', 'no-cache');
+myHeaders.append('Cache-Control', 'no-store');
+
+var meta = {
+    method: 'GET',
+    headers: myHeaders
+}
 
 var getGCArticlesCoachingAndAdvice = async function (lang) {
     let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "product?_embed&categories=12" : process.env.GC_ARTICLES_ENDPOINT_FR + "product?_embed&categories=22";
-    return await fetch(url + "?dummy=" + ms)
+    return await fetch(url, meta)
     .then(response => response.json())
     .then(data => {
         let files = [];
@@ -175,12 +183,20 @@ module.exports = getGCArticlesCoachingAndAdvice
 
 const fetch = __webpack_require__(467);
 const buildFileName = __webpack_require__(8948);
-const ms = Date.now();
+const {Headers} = __webpack_require__(467);
+var myHeaders = new Headers();
+myHeaders.append('Pragma', 'no-cache');
+myHeaders.append('Cache-Control', 'no-store');
+
+var meta = {
+    method: 'GET',
+    headers: myHeaders
+}
 
 var getGCArticlesGuides = async function (lang) {
     let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "product?_embed&categories=11" : process.env.GC_ARTICLES_ENDPOINT_FR + "product?_embed&categories=18";
 
-    return await fetch(url + "?dummy=" + ms)
+    return await fetch(url, meta)
     .then(response => response.json())
     .then(data => {
         let files = [];
@@ -262,11 +278,19 @@ module.exports = getJobPostsFromGCArticles;
 
 const fetch = __webpack_require__(467);
 const buildFileName = __webpack_require__(8948);
-const ms = Date.now();
+const {Headers} = __webpack_require__(467);
+var myHeaders = new Headers();
+myHeaders.append('Pragma', 'no-cache');
+myHeaders.append('Cache-Control', 'no-store');
+
+var meta = {
+    method: 'GET',
+    headers: myHeaders
+}
 
 var getGCArticlesProductSuite = async function (lang) {
     let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "product?_embed&categories=13" : process.env.GC_ARTICLES_ENDPOINT_FR + "product?_embed&categories=21";
-    return await fetch(url + "?dummy=" + ms)
+    return await fetch(url, meta)
     .then(response => response.json())
     .then(data => {
         let files = [];
