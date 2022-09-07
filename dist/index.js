@@ -121,8 +121,7 @@ const fetch = __webpack_require__(467);
 const buildFileName = __webpack_require__(8948);
 const {Headers} = __webpack_require__(467);
 var myHeaders = new Headers();
-myHeaders.append('Pragma', 'no-cache');
-myHeaders.append('Cache-Control', 'no-store');
+myHeaders.append('Cache-Control', 'no-cache');
 
 var meta = {
     method: 'GET',
@@ -185,8 +184,7 @@ const fetch = __webpack_require__(467);
 const buildFileName = __webpack_require__(8948);
 const {Headers} = __webpack_require__(467);
 var myHeaders = new Headers();
-myHeaders.append('Pragma', 'no-cache');
-myHeaders.append('Cache-Control', 'no-store');
+myHeaders.append('Cache-Control', 'no-cache');
 
 var meta = {
     method: 'GET',
@@ -280,8 +278,7 @@ const fetch = __webpack_require__(467);
 const buildFileName = __webpack_require__(8948);
 const {Headers} = __webpack_require__(467);
 var myHeaders = new Headers();
-myHeaders.append('Pragma', 'no-cache');
-myHeaders.append('Cache-Control', 'no-store');
+myHeaders.append('Cache-Control', 'no-cache');
 
 var meta = {
     method: 'GET',

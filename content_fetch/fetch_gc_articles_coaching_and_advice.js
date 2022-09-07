@@ -2,8 +2,7 @@ const fetch = require('node-fetch');
 const buildFileName = require('../utils/buildFileName');
 const {Headers} = require('node-fetch');
 var myHeaders = new Headers();
-myHeaders.append('Pragma', 'no-cache');
-myHeaders.append('Cache-Control', 'no-store');
+myHeaders.append('Cache-Control', 'no-cache');
 
 var meta = {
     method: 'GET',
