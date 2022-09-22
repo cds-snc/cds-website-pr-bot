@@ -37,7 +37,7 @@ var getBlogPostsFromGCArticles = async function(lang) {
             "https://de2an9clyit2x.cloudfront.net");
         }
 
-        out += post.markdown.content.rendered + "\n";
+        out += post.content.rendered + "\n";
         
         let slug = buildFileName(post.title.rendered);
 
