@@ -10,7 +10,7 @@ var getBlogPostsFromGCArticles = async function(lang) {
       let files = [];
       for (p in data) {
         let post = data[p]
-        let replacedTitle = post.title.rendered.replace(/&#8217;/g, "'")
+        let replacedTitle = post.title.rendered.replace(/&#8217;/g, "’")
         let out = "";
         out += "---\n";
         out += "layout: blog\n";
