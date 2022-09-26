@@ -861,6 +861,24 @@ async function run() {
 }
 
 async function gcArticlesBlogAutoPR() {
+  let treeShas = await octokit.repos.getContent({
+    owner: 'cds-snc',
+    repo: 'digital-canada-ca',
+    path: "/content",
+  });
+  
+  let existingContentEN = await octokit.git.getTree({
+    owner: 'cds-snc',
+    repo: 'digital-canada-ca',
+    tree_sha: treeShas.data.filter(tree => tree.name === "en")[0].sha, // filter by name in case this directory is ever modified / added to
+    recursive: true
+  });
+  let existingContentFR = await octokit.git.getTree({
+    owner: 'cds-snc',
+    repo: 'digital-canada-ca',
+    tree_sha: treeShas.data.filter(tree => tree.name === "fr")[0].sha,
+    recursive: true
+  });
   var gcArticlesBlogsEn = await getBlogPostsFromGCArticles("en");
   var gcArticlesBlogsFr = await getBlogPostsFromGCArticles("fr");
   var branchName = "Blog Post"
