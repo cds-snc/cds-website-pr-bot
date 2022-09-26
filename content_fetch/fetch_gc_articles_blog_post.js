@@ -10,11 +10,11 @@ var getBlogPostsFromGCArticles = async function(lang) {
       let files = [];
       for (p in data) {
         let post = data[p]
-        
+        let replacedTitle = post.title.rendered.replace(/&#8217;/g, "'")
         let out = "";
         out += "---\n";
         out += "layout: blog\n";
-        out += "title: '" + post.title.rendered + "'\n";
+        out += "title: '" + replacedTitle + "'\n";
         out += "description: >-\n";
         out += "  " + post.markdown.excerpt.rendered + "\n";
         out += "author: '" + post.meta.gc_author_name + "'\n";
@@ -39,7 +39,7 @@ var getBlogPostsFromGCArticles = async function(lang) {
 
         out += post.content.rendered + "\n";
         
-        let slug = buildFileName(post.title.rendered);
+        let slug = buildFileName(replacedTitle);
 
         files.push({body: out, fileName: slug + ".md"})
       }
