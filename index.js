@@ -341,7 +341,7 @@ async function gcArticlesBlogAutoPR() {
   });
   var gcArticlesBlogsEn = await getBlogPostsFromGCArticles("en");
   var gcArticlesBlogsFr = await getBlogPostsFromGCArticles("fr");
-  var branchName = "Blog Post"
+  var branchName = "Blog-Post"
   await createAndUpdateFiles(gcArticlesBlogsEn, existingContentEN.data.tree, "en", "blog/posts/", `${branchName}-${new Date().getTime()}`);
   await createAndUpdateFiles(gcArticlesBlogsFr, existingContentFR.data.tree, "fr", "blog/posts/", `${branchName}-${new Date().getTime()}`);
 
