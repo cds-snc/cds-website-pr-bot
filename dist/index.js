@@ -787,8 +787,8 @@ async function run() {
   // Blog posts
   await createAndUpdateFiles(blogPostsEnNew, existingContentEN.data.tree, "en", "blog/posts/", branchName);
   await createAndUpdateFiles(blogPostsFrNew, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
-  await createAndUpdateFiles(gcArticlesBlogsEn, existingContentEN.data.tree, "en", "blog/posts/", branchName);
-  await createAndUpdateFiles(gcArticlesBlogsFr, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
+  // await createAndUpdateFiles(gcArticlesBlogsEn, existingContentEN.data.tree, "en", "blog/posts/", branchName);
+  // await createAndUpdateFiles(gcArticlesBlogsFr, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
   // Job Postings
   await createAndUpdateFiles(jobPostsEnNew, existingContentEN.data.tree, "en", "careers/positions/", branchName);
   await createAndUpdateFiles(jobPostsFrNew, existingContentFR.data.tree, "fr", "careers/positions/", branchName);
@@ -859,7 +859,50 @@ async function run() {
   }
   
 }
+
+async function gcArticlesBlogAutoPR() {
+  var gcArticlesBlogsEn = await getBlogPostsFromGCArticles("en");
+  var gcArticlesBlogsFr = await getBlogPostsFromGCArticles("fr");
+  var branchName = "Blog Post"
+  await createAndUpdateFiles(gcArticlesBlogsEn, existingContentEN.data.tree, "en", "blog/posts/", branchName);
+  await createAndUpdateFiles(gcArticlesBlogsFr, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
+
+    // if there is content - compare shas of most recent commit on the branch and main
+    let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
+      owner: 'cds-snc',
+      repo: 'digital-canada-ca',
+      sha: branchName
+    });
+    let maincommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
+      owner: 'cds-snc',
+      repo: 'digital-canada-ca',
+      sha: "main"
+    })
+    if (branchcommit.data && branchcommit.data.sha != maincommit.data.sha) {
+      closePRs()
+  
+      // Make the new PR
+      await octokit.pulls.create({
+        owner: 'cds-snc',
+        repo: 'digital-canada-ca',
+        title: `${branchName} [AUTO-PR] New content release -  ${new Date().toISOString()}`,
+        head: branchName,
+        base: 'main',
+        body: "New Content release for CDS Website. See below commits for list of changes.",
+        draft: false
+      });
+  
+    } else {
+      // no commits, delete the ref
+      await octokit.git.deleteRef({
+        owner: 'cds-snc',
+        repo: 'digital-canada-ca',
+        ref: `heads/${branchName}`
+      });
+    }
+}
 run();
+gcArticlesBlogAutoPR();
 
 /***/ }),
 
