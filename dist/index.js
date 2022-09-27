@@ -748,6 +748,14 @@ async function runGuides() {
   var gcArticlesGuidesFr = await getGuidesFromGCArticles("fr");
 
   branchName = `guides-content-release-${new Date().getTime()}`;
+  const websiteSha = await getHeadSha("digital-canada-ca", "main");
+  
+  let refs = await octokit.git.createRef({
+    owner: 'cds-snc',
+    repo: 'digital-canada-ca',
+    ref: `refs/heads/${branchName}`,
+    sha: websiteSha
+  });
 
   await createAndUpdateGuidesFiles(gcArticlesGuidesEn, existingContentEN.data.tree, "en", "guides/resources/", branchName);
   await createAndUpdateGuidesFiles(gcArticlesGuidesFr, existingContentFR.data.tree, "fr", "guides/resources/", branchName);
