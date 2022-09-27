@@ -69,7 +69,7 @@ const getExistingContent = async (path) => {
   return data;
 }
 
-const createAndUpdateFiles = async (newFiles, oldFiles, lang, subpath, branchName) => {
+const createAndUpdateFiles = async (newFiles, oldFiles, lang, subpath, branchName, title) => {
   // for each modified or changed file:
   let path = "content/" + lang + "/";
   for (f in newFiles) {
@@ -86,7 +86,7 @@ const createAndUpdateFiles = async (newFiles, oldFiles, lang, subpath, branchNam
         repo: 'digital-canada-ca',
         path: path + subpath + newFiles[f].fileName,
         content: content,
-        branch: branchName,
+        branch: `${title}-${branchName}`,
         message: "Added new file: " + newFiles[f].fileName
       })
     } else {
@@ -103,13 +103,47 @@ const createAndUpdateFiles = async (newFiles, oldFiles, lang, subpath, branchNam
             sha: exists[0].sha, // if update this is required
             path: path + exists[0].path,
             content: content,
-            branch: branchName,
+            branch: `${title}-${branchName}`,
             message: "Updated file: " + newFiles[f].fileName
           })
         }
       });
     }
   }
+
+    // if there is content - compare shas of most recent commit on the branch and main
+    let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
+      owner: 'cds-snc',
+      repo: 'digital-canada-ca',
+      sha: `${title}-${branchName}`
+    });
+    let maincommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
+      owner: 'cds-snc',
+      repo: 'digital-canada-ca',
+      sha: "main"
+    })
+    if (branchcommit.data && branchcommit.data.sha != maincommit.data.sha) {
+      closePRs()
+  
+      // Make the new PR
+      await octokit.pulls.create({
+        owner: 'cds-snc',
+        repo: 'digital-canada-ca',
+        title: `[AUTO-PR] New content release: ${title} -  ${new Date().toISOString()}`,
+        head: `${title}-${branchName}`,
+        base: 'main',
+        body: "New Content release for CDS Website. See below commits for list of changes.",
+        draft: false
+      });
+  
+    } else {
+      // no commits, delete the ref
+      await octokit.git.deleteRef({
+        owner: 'cds-snc',
+        repo: 'digital-canada-ca',
+        ref: `heads/${title}-${branchName}`
+      });
+    }
 }
 
 const updateTeamFile = async (newFile, branchName) => {
@@ -245,28 +279,28 @@ async function run() {
 
   // Create / Update file commits
   // Blog posts
-  await createAndUpdateFiles(blogPostsEnNew, existingContentEN.data.tree, "en", "blog/posts/", branchName);
-  await createAndUpdateFiles(blogPostsFrNew, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
-  // await createAndUpdateFiles(gcArticlesBlogsEn, existingContentEN.data.tree, "en", "blog/posts/", branchName);
-  // await createAndUpdateFiles(gcArticlesBlogsFr, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
+  await createAndUpdateFiles(blogPostsEnNew, existingContentEN.data.tree, "en", "blog/posts/", branchName, "blog");
+  await createAndUpdateFiles(blogPostsFrNew, existingContentFR.data.tree, "fr", "blog/posts/", branchName, "blog");
+  await createAndUpdateFiles(gcArticlesBlogsEn, existingContentEN.data.tree, "en", "blog/posts/", branchName, "blog");
+  await createAndUpdateFiles(gcArticlesBlogsFr, existingContentFR.data.tree, "fr", "blog/posts/", branchName, "blog");
   // Job Postings
-  await createAndUpdateFiles(jobPostsEnNew, existingContentEN.data.tree, "en", "careers/positions/", branchName);
-  await createAndUpdateFiles(jobPostsFrNew, existingContentFR.data.tree, "fr", "careers/positions/", branchName);
-  await createAndUpdateFiles(gcArticlesJobPostsEn, existingContentEN.data.tree, "en", "careers/positions/", branchName)
-  await createAndUpdateFiles(gcArticlesJobPostsFr, existingContentFR.data.tree, "fr", "careers/positions/", branchName)
+  await createAndUpdateFiles(jobPostsEnNew, existingContentEN.data.tree, "en", "careers/positions/", branchName, "job");
+  await createAndUpdateFiles(jobPostsFrNew, existingContentFR.data.tree, "fr", "careers/positions/", branchName, "job");
+  await createAndUpdateFiles(gcArticlesJobPostsEn, existingContentEN.data.tree, "en", "careers/positions/", branchName, "job")
+  await createAndUpdateFiles(gcArticlesJobPostsFr, existingContentFR.data.tree, "fr", "careers/positions/", branchName, "job")
 
   // Products
   // Partnerships
-  await createAndUpdateFiles(productsPartnershipsEnNew, existingContentEN.data.tree, "en", "products/products/", branchName);
-  await createAndUpdateFiles(productsPartnershipsFrNew, existingContentFR.data.tree, "fr", "products/products/", branchName);
-  await createAndUpdateFiles(gcArticlesCoachingAndAdviceEn, existingContentEN.data.tree, "en", "products/products/", branchName);
-  await createAndUpdateFiles(gcArticlesCoachingAndAdviceFr, existingContentFR.data.tree, "fr", "products/products/", branchName);
+  await createAndUpdateFiles(productsPartnershipsEnNew, existingContentEN.data.tree, "en", "products/products/", branchName, "coaching-and-advice");
+  await createAndUpdateFiles(productsPartnershipsFrNew, existingContentFR.data.tree, "fr", "products/products/", branchName, "coaching-and-advice");
+  await createAndUpdateFiles(gcArticlesCoachingAndAdviceEn, existingContentEN.data.tree, "en", "products/products/", branchName, "coaching-and-advice");
+  await createAndUpdateFiles(gcArticlesCoachingAndAdviceFr, existingContentFR.data.tree, "fr", "products/products/", branchName, "coaching-and-advice");
   // Platform
-  await createAndUpdateFiles(productsPlatformEnNew, existingContentEN.data.tree, "en", "tools-and-resources/platform-tools/", branchName);
-  await createAndUpdateFiles(productsPlatformFrNew, existingContentFR.data.tree, "fr", "tools-and-resources/platform-tools/", branchName);
+  // await createAndUpdateFiles(productsPlatformEnNew, existingContentEN.data.tree, "en", "tools-and-resources/platform-tools/", branchName);
+  // await createAndUpdateFiles(productsPlatformFrNew, existingContentFR.data.tree, "fr", "tools-and-resources/platform-tools/", branchName);
   // Resources
-  await createAndUpdateFiles(resourcesEnNew, existingContentEN.data.tree, "en", "tools-and-resources/resources/", branchName);
-  await createAndUpdateFiles(resourcesFrNew, existingContentFR.data.tree, "fr", "tools-and-resources/resources/", branchName);
+  // await createAndUpdateFiles(resourcesEnNew, existingContentEN.data.tree, "en", "tools-and-resources/resources/", branchName);
+  // await createAndUpdateFiles(resourcesFrNew, existingContentFR.data.tree, "fr", "tools-and-resources/resources/", branchName);
 
   // Team Members
   await updateTeamFile(teamMembersNew, branchName);
@@ -275,109 +309,14 @@ async function run() {
   //Product Suite
   // await createAndUpdateFiles(productSuiteEnNew, existingContentEN.data.tree, "en", "product-suite/product/", branchName);
   // await createAndUpdateFiles(productSuiteFrNew, existingContentFR.data.tree, "fr", "product-suite/product/", branchName);
-  await createAndUpdateFiles(gcArticlesProductSuiteEn, existingContentEN.data.tree, "en", "product-suite/product/", branchName);
-  await createAndUpdateFiles(gcArticlesProductSuiteFr, existingContentFR.data.tree, "fr", "prduct-suite/product/", branchName)
+  await createAndUpdateFiles(gcArticlesProductSuiteEn, existingContentEN.data.tree, "en", "product-suite/product/", branchName, "product-suite");
+  await createAndUpdateFiles(gcArticlesProductSuiteFr, existingContentFR.data.tree, "fr", "prduct-suite/product/", branchName, "product-suite")
 
   //Guides
-  await createAndUpdateFiles(guidesEnNew, existingContentEN.data.tree, "en", "guides/resources/", branchName);
-  await createAndUpdateFiles(guidesFrNew, existingContentFR.data.tree, "fr", "guides/resources/", branchName);
-  await createAndUpdateFiles(gcArticlesGuidesEn, existingContentEN.data.tree, "en", "guides/resources/", branchName);
-  await createAndUpdateFiles(gcArticlesGuidesFr, existingContentFR.data.tree, "fr", "guides/resources/", branchName);
-
-  // if there is content - compare shas of most recent commit on the branch and main
-  let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
-    owner: 'cds-snc',
-    repo: 'digital-canada-ca',
-    sha: branchName
-  });
-  let maincommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
-    owner: 'cds-snc',
-    repo: 'digital-canada-ca',
-    sha: "main"
-  })
-  if (branchcommit.data && branchcommit.data.sha != maincommit.data.sha) {
-    closePRs()
-
-    // Make the new PR
-    await octokit.pulls.create({
-      owner: 'cds-snc',
-      repo: 'digital-canada-ca',
-      title: `[AUTO-PR] New content release -  ${new Date().toISOString()}`,
-      head: branchName,
-      base: 'main',
-      body: "New Content release for CDS Website. See below commits for list of changes.",
-      draft: false
-    });
-
-  } else {
-    // no commits, delete the ref
-    await octokit.git.deleteRef({
-      owner: 'cds-snc',
-      repo: 'digital-canada-ca',
-      ref: `heads/${branchName}`
-    });
-  }
+  await createAndUpdateFiles(guidesEnNew, existingContentEN.data.tree, "en", "guides/resources/", branchName, "guides");
+  await createAndUpdateFiles(guidesFrNew, existingContentFR.data.tree, "fr", "guides/resources/", branchName, "guides");
+  await createAndUpdateFiles(gcArticlesGuidesEn, existingContentEN.data.tree, "en", "guides/resources/", branchName, "guides");
+  await createAndUpdateFiles(gcArticlesGuidesFr, existingContentFR.data.tree, "fr", "guides/resources/", branchName, "guides");
   
-}
-
-async function gcArticlesBlogAutoPR() {
-  let treeShas = await octokit.repos.getContent({
-    owner: 'cds-snc',
-    repo: 'digital-canada-ca',
-    path: "/content",
-  });
-  
-  let existingContentEN = await octokit.git.getTree({
-    owner: 'cds-snc',
-    repo: 'digital-canada-ca',
-    tree_sha: treeShas.data.filter(tree => tree.name === "en")[0].sha, // filter by name in case this directory is ever modified / added to
-    recursive: true
-  });
-  let existingContentFR = await octokit.git.getTree({
-    owner: 'cds-snc',
-    repo: 'digital-canada-ca',
-    tree_sha: treeShas.data.filter(tree => tree.name === "fr")[0].sha,
-    recursive: true
-  });
-  var gcArticlesBlogsEn = await getBlogPostsFromGCArticles("en");
-  var gcArticlesBlogsFr = await getBlogPostsFromGCArticles("fr");
-  branchName = `content-release-${new Date().getTime()}`;
-  await createAndUpdateFiles(gcArticlesBlogsEn, existingContentEN.data.tree, "en", "blog/posts/", branchName);
-  await createAndUpdateFiles(gcArticlesBlogsFr, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
-
-    // if there is content - compare shas of most recent commit on the branch and main
-    let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
-      owner: 'cds-snc',
-      repo: 'digital-canada-ca',
-      sha: branchName
-    });
-    let maincommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
-      owner: 'cds-snc',
-      repo: 'digital-canada-ca',
-      sha: "main"
-    })
-    if (branchcommit.data && branchcommit.data.sha != maincommit.data.sha) {
-      closePRs()
-  
-      // Make the new PR
-      await octokit.pulls.create({
-        owner: 'cds-snc',
-        repo: 'digital-canada-ca',
-        title: `Blog Post [AUTO-PR] New content release -  ${new Date().toISOString()}`,
-        head: branchName,
-        base: 'main',
-        body: "New Content release for CDS Website. See below commits for list of changes.",
-        draft: false
-      });
-  
-    } else {
-      // no commits, delete the ref
-      await octokit.git.deleteRef({
-        owner: 'cds-snc',
-        repo: 'digital-canada-ca',
-        ref: `heads/${branchName}`
-      });
-    }
 }
 run();
-gcArticlesBlogAutoPR();
