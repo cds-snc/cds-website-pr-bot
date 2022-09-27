@@ -881,15 +881,15 @@ async function gcArticlesBlogAutoPR() {
   });
   var gcArticlesBlogsEn = await getBlogPostsFromGCArticles("en");
   var gcArticlesBlogsFr = await getBlogPostsFromGCArticles("fr");
-  var branchName = "Blog-Post"
-  await createAndUpdateFiles(gcArticlesBlogsEn, existingContentEN.data.tree, "en", "blog/posts/", `${branchName}-${new Date().getTime()}`);
-  await createAndUpdateFiles(gcArticlesBlogsFr, existingContentFR.data.tree, "fr", "blog/posts/", `${branchName}-${new Date().getTime()}`);
+  branchName = `content-release-${new Date().getTime()}`;
+  await createAndUpdateFiles(gcArticlesBlogsEn, existingContentEN.data.tree, "en", "blog/posts/", branchName);
+  await createAndUpdateFiles(gcArticlesBlogsFr, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
 
     // if there is content - compare shas of most recent commit on the branch and main
     let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
       owner: 'cds-snc',
       repo: 'digital-canada-ca',
-      sha: `${branchName}-${new Date().getTime()}`
+      sha: branchName
     });
     let maincommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
       owner: 'cds-snc',
@@ -903,8 +903,8 @@ async function gcArticlesBlogAutoPR() {
       await octokit.pulls.create({
         owner: 'cds-snc',
         repo: 'digital-canada-ca',
-        title: `${branchName} [AUTO-PR] New content release -  ${new Date().toISOString()}`,
-        head: `${branchName}-${new Date().getTime()}`,
+        title: `Blog Post [AUTO-PR] New content release -  ${new Date().toISOString()}`,
+        head: branchName,
         base: 'main',
         body: "New Content release for CDS Website. See below commits for list of changes.",
         draft: false
@@ -915,7 +915,7 @@ async function gcArticlesBlogAutoPR() {
       await octokit.git.deleteRef({
         owner: 'cds-snc',
         repo: 'digital-canada-ca',
-        ref: `heads/${branchName}-${new Date().getTime()}`
+        ref: `heads/${branchName}`
       });
     }
 }
