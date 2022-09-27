@@ -124,7 +124,7 @@ const createAndUpdateGuidesFiles = async (newFiles, oldFiles, lang, subpath, bra
         repo: 'digital-canada-ca',
         path: path + subpath + newFiles[f].fileName,
         content: content,
-        branch: `guides-${branchName}`,
+        branch: branchName,
         message: "Added new file: " + newFiles[f].fileName
       })
     } else {
@@ -141,7 +141,7 @@ const createAndUpdateGuidesFiles = async (newFiles, oldFiles, lang, subpath, bra
             sha: exists[0].sha, // if update this is required
             path: path + exists[0].path,
             content: content,
-            branch: `guides-${branchName}`,
+            branch: branchName,
             message: "Updated file: " + newFiles[f].fileName
           })
         }
@@ -207,7 +207,7 @@ async function runGuides() {
   var gcArticlesGuidesEn = await getGuidesFromGCArticles("en");
   var gcArticlesGuidesFr = await getGuidesFromGCArticles("fr");
 
-  branchName = `content-release-${new Date().getTime()}`;
+  branchName = `guides-content-release-${new Date().getTime()}`;
 
   await createAndUpdateGuidesFiles(gcArticlesGuidesEn, existingContentEN.data.tree, "en", "guides/resources/", branchName);
   await createAndUpdateGuidesFiles(gcArticlesGuidesFr, existingContentFR.data.tree, "fr", "guides/resources/", branchName);
@@ -215,7 +215,7 @@ async function runGuides() {
     let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
     owner: 'cds-snc',
     repo: 'digital-canada-ca',
-    sha: `guides-${branchName}`
+    sha: branchName
   });
   let maincommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
     owner: 'cds-snc',
@@ -230,7 +230,7 @@ async function runGuides() {
       owner: 'cds-snc',
       repo: 'digital-canada-ca',
       title: `[AUTO-PR] New content release GUIDES -  ${new Date().toISOString()}`,
-      head: `guides-${branchName}`,
+      head: branchName,
       base: 'main',
       body: "New Content release for CDS Website. See below commits for list of changes.",
       draft: false
@@ -241,7 +241,7 @@ async function runGuides() {
     await octokit.git.deleteRef({
       owner: 'cds-snc',
       repo: 'digital-canada-ca',
-      ref: `heads/guides-${branchName}`
+      ref: `heads/${branchName}`
     });
   }
 }
