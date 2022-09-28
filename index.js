@@ -338,6 +338,14 @@ const createAndUpdateGCArticlesFiles = async (newFiles, oldFiles, lang, subpath,
       });
     }
   }
+  const websiteSha = await getHeadSha("digital-canada-ca", "main");
+
+  let refs = await octokit.git.createRef({
+    owner: 'cds-snc',
+    repo: 'digital-canada-ca',
+    ref: `refs/heads/${branchName}`,
+    sha: websiteSha
+  });
   createPR(branchName)
 }
 
@@ -418,14 +426,7 @@ const createPR = async (branchName) => {
     repo: 'digital-canada-ca',
     sha: "main"
   })
-  const websiteSha = await getHeadSha("digital-canada-ca", "main");
 
-  let refs = await octokit.git.createRef({
-    owner: 'cds-snc',
-    repo: 'digital-canada-ca',
-    ref: `refs/heads/${branchName}`,
-    sha: websiteSha
-  });
   if (branchcommit.data && branchcommit.data.sha != maincommit.data.sha) {
     // closePRs()
 
