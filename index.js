@@ -112,7 +112,7 @@ const createAndUpdateFiles = async (newFiles, oldFiles, lang, subpath, branchNam
   }
 }
 
-const createAndUpdateJobsFiles = async (newFiles, oldFiles, lang, subpath, branchName) => {
+const createAndUpdateBlogsFiles = async (newFiles, oldFiles, lang, subpath, branchName) => {
   let path = "content/" + lang + "/";
   for (f in newFiles) {
     var exists = (oldFiles.name && oldFiles.name == newFiles[f].fileName) ? [oldFiles] : oldFiles.filter(oldFile => oldFile.path == subpath + newFiles[f].fileName);
@@ -214,8 +214,8 @@ async function runBlogs() {
     sha: websiteSha
   });
 
-  await createAndUpdateJobsFiles(gcArticlesBlogsEn, existingContentEN.data.tree, "en", "blog/posts/", branchName);
-  await createAndUpdateJobsFiles(gcArticlesBlogsFr, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
+  await createAndUpdateBlogsFiles(gcArticlesBlogsEn, existingContentEN.data.tree, "en", "blog/posts/", branchName);
+  await createAndUpdateBlogsFiles(gcArticlesBlogsFr, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
 
     let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
     owner: 'cds-snc',
