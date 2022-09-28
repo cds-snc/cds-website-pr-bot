@@ -266,13 +266,13 @@ async function runBlogs() {
     sha: "main"
   })
   if (branchcommit.data && branchcommit.data.sha != maincommit.data.sha) {
-    // closePRs()
+    closePRs()
 
     // Make the new PR
     await octokit.pulls.create({
       owner: 'cds-snc',
       repo: 'digital-canada-ca',
-      title: `[AUTO-PR] New content release BLOGS -  ${new Date().toISOString()}`,
+      title: `BLOGS [AUTO-PR] New content release -  ${new Date().toISOString()}`,
       head: branchName,
       base: 'main',
       body: "New Content release for CDS Website. See below commits for list of changes.",
@@ -336,13 +336,13 @@ async function runJobs() {
     sha: "main"
   })
   if (branchcommit.data && branchcommit.data.sha != maincommit.data.sha) {
-    // closePRs()
+    closePRs()
 
     // Make the new PR
     await octokit.pulls.create({
       owner: 'cds-snc',
       repo: 'digital-canada-ca',
-      title: `[AUTO-PR] New content release JOBS -  ${new Date().toISOString()}`,
+      title: `JOBS [AUTO-PR] New content release -  ${new Date().toISOString()}`,
       head: branchName,
       base: 'main',
       body: "New Content release for CDS Website. See below commits for list of changes.",
