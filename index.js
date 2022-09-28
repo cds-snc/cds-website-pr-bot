@@ -396,8 +396,8 @@ async function runJobs() {
     sha: websiteSha
   });
 
-  await createAndUpdateFiles(gcArticlesJobPostsEn, existingContentEN.data.tree, "en", "blog/posts/", branchName);
-  await createAndUpdateFiles(gcArticlesJobPostsFr, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
+  await createAndUpdateFiles(gcArticlesJobPostsEn, existingContentEN.data.tree, "en", "careers/positions/", branchName);
+  await createAndUpdateFiles(gcArticlesJobPostsFr, existingContentFR.data.tree, "fr", "careers/positions/", branchName);
 
     let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
     owner: 'cds-snc',
