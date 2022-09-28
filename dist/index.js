@@ -651,6 +651,90 @@ const createAndUpdateFiles = async (newFiles, oldFiles, lang, subpath, branchNam
     }
   }
 }
+const createAndUpdateBlogFiles = async (newFiles, oldFiles, lang, subpath, branchName) => {
+  // for each modified or changed file:
+  let path = "content/" + lang + "/";
+  for (f in newFiles) {
+    // === if file new or modified code here! ====
+    // If single file, github returns an object instead of an array
+    var exists = (oldFiles.name && oldFiles.name == newFiles[f].fileName) ? [oldFiles] : oldFiles.filter(oldFile => oldFile.path == subpath + newFiles[f].fileName);
+
+    let content = Base64.encode(newFiles[f].body)
+
+    if (exists.length == 0) {
+      // Create new File
+      await octokit.repos.createOrUpdateFileContents({
+        owner: 'cds-snc',
+        repo: 'digital-canada-ca',
+        path: path + subpath + newFiles[f].fileName,
+        content: content,
+        branch: branchName,
+        message: "Added new file: " + newFiles[f].fileName
+      })
+    } else {
+      await octokit.repos.getContent({
+        owner: 'cds-snc',
+        repo: 'digital-canada-ca',
+        path: path + exists[0].path
+      }).then(async result => {
+        if (Base64.decode(result.data.content) != newFiles[f].body) {
+          // Update existing file
+          await octokit.repos.createOrUpdateFileContents({
+            owner: 'cds-snc',
+            repo: 'digital-canada-ca',
+            sha: exists[0].sha, // if update this is required
+            path: path + exists[0].path,
+            content: content,
+            branch: branchName,
+            message: "Updated file: " + newFiles[f].fileName
+          })
+        }
+      });
+    }
+  }
+}
+const createAndUpdateJobsFiles = async (newFiles, oldFiles, lang, subpath, branchName) => {
+  // for each modified or changed file:
+  let path = "content/" + lang + "/";
+  for (f in newFiles) {
+    // === if file new or modified code here! ====
+    // If single file, github returns an object instead of an array
+    var exists = (oldFiles.name && oldFiles.name == newFiles[f].fileName) ? [oldFiles] : oldFiles.filter(oldFile => oldFile.path == subpath + newFiles[f].fileName);
+
+    let content = Base64.encode(newFiles[f].body)
+
+    if (exists.length == 0) {
+      // Create new File
+      await octokit.repos.createOrUpdateFileContents({
+        owner: 'cds-snc',
+        repo: 'digital-canada-ca',
+        path: path + subpath + newFiles[f].fileName,
+        content: content,
+        branch: branchName,
+        message: "Added new file: " + newFiles[f].fileName
+      })
+    } else {
+      await octokit.repos.getContent({
+        owner: 'cds-snc',
+        repo: 'digital-canada-ca',
+        path: path + exists[0].path
+      }).then(async result => {
+        if (Base64.decode(result.data.content) != newFiles[f].body) {
+          // Update existing file
+          await octokit.repos.createOrUpdateFileContents({
+            owner: 'cds-snc',
+            repo: 'digital-canada-ca',
+            sha: exists[0].sha, // if update this is required
+            path: path + exists[0].path,
+            content: content,
+            branch: branchName,
+            message: "Updated file: " + newFiles[f].fileName
+          })
+        }
+      });
+    }
+  }
+}
 
 const updateTeamFile = async (newFile, branchName) => {
 
@@ -866,8 +950,8 @@ async function runBlogs() {
     sha: websiteSha
   });
 
-  await createAndUpdateFiles(gcArticlesBlogsEn, existingContentEN.data.tree, "en", "blog/posts/", branchName);
-  await createAndUpdateFiles(gcArticlesBlogsFr, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
+  await createAndUpdateBlogFiles(gcArticlesBlogsEn, existingContentEN.data.tree, "en", "blog/posts/", branchName);
+  await createAndUpdateBlogFiles(gcArticlesBlogsFr, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
 
     let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
     owner: 'cds-snc',
@@ -936,8 +1020,8 @@ async function runJobs() {
     sha: websiteSha
   });
 
-  await createAndUpdateFiles(gcArticlesJobPostsEn, existingContentEN.data.tree, "en", "careers/positions/", branchName);
-  await createAndUpdateFiles(gcArticlesJobPostsFr, existingContentFR.data.tree, "fr", "careers/positions/", branchName);
+  await createAndUpdateJobsFiles(gcArticlesJobPostsEn, existingContentEN.data.tree, "en", "careers/positions/", branchName);
+  await createAndUpdateJobsFiles(gcArticlesJobPostsFr, existingContentFR.data.tree, "fr", "careers/positions/", branchName);
 
     let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
     owner: 'cds-snc',
