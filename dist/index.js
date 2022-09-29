@@ -634,15 +634,6 @@ const getExistingContent = async (path) => {
   return data;
 }
 
-const getRef = async (branchName, webSha) => {
-  await octokit.git.createRef({
-    owner: 'cds-snc',
-    repo: 'digital-canada-ca',
-    ref: `refs/heads/${branchName}`,
-    sha: webSha
-  });
-}
-
 const createAndUpdateFiles = async (newFiles, oldFiles, lang, subpath, branchName) => {
   // for each modified or changed file:
   let path = "content/" + lang + "/";
