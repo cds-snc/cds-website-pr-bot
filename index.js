@@ -139,7 +139,7 @@ const createAndUpdateFiles = async (newFiles, oldFiles, lang, subpath, branchNam
 
 const createAndUpdateBlogFiles = async (newFiles, oldFiles, lang, subpath, branch) => {
   const websiteSha = await getHeadSha("digital-canada-ca", "main");
-  var branchName = `${branch}-content-release-${new Date().getTime()}`;
+  branchName = `${branch}-content-release-${new Date().getTime()}`;
   
   // for each modified or changed file:
   let path = "content/" + lang + "/";
