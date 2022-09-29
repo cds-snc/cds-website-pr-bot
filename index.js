@@ -390,75 +390,75 @@ async function runGuides() {
     });
   }
 }
-// async function runJobs() {
-//   let treeShas = await octokit.repos.getContent({
-//     owner: 'cds-snc',
-//     repo: 'digital-canada-ca',
-//     path: "/content",
-//   });
+async function runJobs() {
+  let treeShas = await octokit.repos.getContent({
+    owner: 'cds-snc',
+    repo: 'digital-canada-ca',
+    path: "/content",
+  });
   
-//   let existingContentEN = await octokit.git.getTree({
-//     owner: 'cds-snc',
-//     repo: 'digital-canada-ca',
-//     tree_sha: treeShas.data.filter(tree => tree.name === "en")[0].sha, // filter by name in case this directory is ever modified / added to
-//     recursive: true
-//   });
-//   let existingContentFR = await octokit.git.getTree({
-//     owner: 'cds-snc',
-//     repo: 'digital-canada-ca',
-//     tree_sha: treeShas.data.filter(tree => tree.name === "fr")[0].sha,
-//     recursive: true
-//   });
+  let existingContentEN = await octokit.git.getTree({
+    owner: 'cds-snc',
+    repo: 'digital-canada-ca',
+    tree_sha: treeShas.data.filter(tree => tree.name === "en")[0].sha, // filter by name in case this directory is ever modified / added to
+    recursive: true
+  });
+  let existingContentFR = await octokit.git.getTree({
+    owner: 'cds-snc',
+    repo: 'digital-canada-ca',
+    tree_sha: treeShas.data.filter(tree => tree.name === "fr")[0].sha,
+    recursive: true
+  });
 
-//   var gcArticlesJobPostsEn = await getJobPostsFromGCArticles("en");
-//   var gcArticlesJobPostsFr = await getJobPostsFromGCArticles("fr");
+  var gcArticlesJobPostsEn = await getJobPostsFromGCArticles("en");
+  var gcArticlesJobPostsFr = await getJobPostsFromGCArticles("fr");
 
-//   branchName = `jobs-content-release-${new Date().getTime()}`;
-//   const websiteSha = await getHeadSha("digital-canada-ca", "main");
+  branchName = `jobs-content-release-${new Date().getTime()}`;
+  const websiteSha = await getHeadSha("digital-canada-ca", "main");
   
-//   let refs = await octokit.git.createRef({
-//     owner: 'cds-snc',
-//     repo: 'digital-canada-ca',
-//     ref: `refs/heads/${branchName}`,
-//     sha: websiteSha
-//   });
+  let refs = await octokit.git.createRef({
+    owner: 'cds-snc',
+    repo: 'digital-canada-ca',
+    ref: `refs/heads/${branchName}`,
+    sha: websiteSha
+  });
 
-//   await createAndUpdateJobsFiles(gcArticlesJobPostsEn, existingContentEN.data.tree, "en", "careers/positions/", branchName);
-//   await createAndUpdateJobsFiles(gcArticlesJobPostsFr, existingContentFR.data.tree, "fr", "careers/positions/", branchName);
+  await createAndUpdateGuidesFiles(gcArticlesJobPostsEn, existingContentEN.data.tree, "en", "careers/positions/", branchName);
+  await createAndUpdateGuidesFiles(gcArticlesJobPostsFr, existingContentFR.data.tree, "fr", "careers/positions/", branchName);
 
-//     let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
-//     owner: 'cds-snc',
-//     repo: 'digital-canada-ca',
-//     sha: branchName
-//   });
-//   let maincommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
-//     owner: 'cds-snc',
-//     repo: 'digital-canada-ca',
-//     sha: "main"
-//   })
-//   if (branchcommit.data && branchcommit.data.sha != maincommit.data.sha) {
-//     closePRs()
+    let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
+    owner: 'cds-snc',
+    repo: 'digital-canada-ca',
+    sha: branchName
+  });
+  let maincommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
+    owner: 'cds-snc',
+    repo: 'digital-canada-ca',
+    sha: "main"
+  })
+  if (branchcommit.data && branchcommit.data.sha != maincommit.data.sha) {
+    closePRs()
 
-//     // Make the new PR
-//     await octokit.pulls.create({
-//       owner: 'cds-snc',
-//       repo: 'digital-canada-ca',
-//       title: `JOBS [AUTO-PR] New content release -  ${new Date().toISOString()}`,
-//       head: branchName,
-//       base: 'main',
-//       body: "New Content release for CDS Website. See below commits for list of changes.",
-//       draft: false
-//     });
+    // Make the new PR
+    await octokit.pulls.create({
+      owner: 'cds-snc',
+      repo: 'digital-canada-ca',
+      title: `JOBS [AUTO-PR] New content release -  ${new Date().toISOString()}`,
+      head: branchName,
+      base: 'main',
+      body: "New Content release for CDS Website. See below commits for list of changes.",
+      draft: false
+    });
 
-//   } else {
-//     // no commits, delete the ref
-//     await octokit.git.deleteRef({
-//       owner: 'cds-snc',
-//       repo: 'digital-canada-ca',
-//       ref: `heads/${branchName}`
-//     });
-//   }
-// }
+  } else {
+    // no commits, delete the ref
+    await octokit.git.deleteRef({
+      owner: 'cds-snc',
+      repo: 'digital-canada-ca',
+      ref: `heads/${branchName}`
+    });
+  }
+}
 
 async function run() {
   /*
@@ -636,4 +636,4 @@ async function run() {
 run();
 runBlogs();
 runGuides();
-// runJobs()
+runJobs();
