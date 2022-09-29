@@ -51,6 +51,31 @@ async function closePRs() {
   })
 }
 
+async function closeGCArticlePR(type) {
+    // Close old auto PRs
+    const {data: prs} = await octokit.pulls.list({
+      owner: 'cds-snc',
+      repo: 'digital-canada-ca',
+      state: 'open'
+    });
+  
+    prs.forEach( async pr => {
+      if(pr.title.startsWith(`${type}`)) {
+        await octokit.pulls.update({
+          owner: 'cds-snc',
+          repo: 'digital-canada-ca',
+          pull_number: pr.number,
+          state: "closed"
+        });
+        await octokit.git.deleteRef({
+          owner: 'cds-snc',
+          repo: 'digital-canada-ca',
+          ref: `heads/${pr.head.ref}`
+        });
+      }
+    })
+}
+
 const getHeadSha = async (repo, branch = 'main') => {
   const { data: data } = await octokit.repos.getBranch({
     owner: 'cds-snc',
@@ -303,7 +328,7 @@ async function runBlogs() {
     sha: "main"
   })
   if (branchcommit.data && branchcommit.data.sha != maincommit.data.sha) {
-    closePRs()
+    closeGCArticlePR("BLOGS");
 
     // Make the new PR
     await octokit.pulls.create({
@@ -370,7 +395,7 @@ async function runGuides() {
     sha: "main"
   })
   if (branchcommit.data && branchcommit.data.sha != maincommit.data.sha) {
-    closePRs()
+    closeGCArticlePR("GUIDES");
     // Make the new PR
     await octokit.pulls.create({
       owner: 'cds-snc',
@@ -437,7 +462,7 @@ async function runJobs() {
     sha: "main"
   })
   if (branchcommit.data && branchcommit.data.sha != maincommit.data.sha) {
-    closePRs()
+    closeGCArticlePR("JOBS");
 
     // Make the new PR
     await octokit.pulls.create({
