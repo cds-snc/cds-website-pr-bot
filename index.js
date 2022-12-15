@@ -13,7 +13,7 @@ const getJobPosts = require("./content_fetch/fetch_job_posts");
 const getTeamMembers = require("./content_fetch/fetch_team_members");
 const getProducts = require("./content_fetch/fetch_products");
 
-// const getProductSuite = require("./content_fetch/fetch_product_suite");
+const getProductSuite = require("./content_fetch/fetch_product_suite");
 const getGuides = require("./content_fetch/fetch_guides");
 
 const getBlogPostsFromGCArticles = require("./content_fetch/fetch_gc_articles_blog_post");
@@ -23,7 +23,7 @@ const getJobPostsFromGCArticles = require("./content_fetch/fetch_gc_articles_job
 // const getTeamMembersFromGCArticles = require("./content_fetch/fetch_gc_articles_team_members");
 
 const getCoachingAndAdviceFromGCArticles = require("./content_fetch/fetch_gc_articles_coaching_and_advice");
-const getProductSuiteFromGCArticles = require("./content_fetch/fetch_gc_articles_product_suite");
+// const getProductSuiteFromGCArticles = require("./content_fetch/fetch_gc_articles_product_suite");
 const getGuidesFromGCArticles = require("./content_fetch/fetch_gc_articles_guides");
 
 async function closePRs() {
@@ -199,8 +199,8 @@ async function run() {
   var resourcesFrNew = await getProducts("fr", "products-resources-");
 
   //Product Suite
-  // var productSuiteEnNew = await getProductSuite("en")
-  // var productSuiteFrNew = await getProductSuite("fr")
+  var productSuiteEnNew = await getProductSuite("en")
+  var productSuiteFrNew = await getProductSuite("fr")
 
   //Guides
   var guidesEnNew = await getGuides("en")
@@ -222,8 +222,8 @@ async function run() {
   var gcArticlesCoachingAndAdviceFr = await getCoachingAndAdviceFromGCArticles("fr");
 
   //GC Articles Product Suite
-  var gcArticlesProductSuiteEn = await getProductSuiteFromGCArticles("en");
-  var gcArticlesProductSuiteFr = await getProductSuiteFromGCArticles("fr");
+  // var gcArticlesProductSuiteEn = await getProductSuiteFromGCArticles("en");
+  // var gcArticlesProductSuiteFr = await getProductSuiteFromGCArticles("fr");
   //GC Article Guides
   var gcArticlesGuidesEn = await getGuidesFromGCArticles("en");
   var gcArticlesGuidesFr = await getGuidesFromGCArticles("fr");
@@ -270,10 +270,10 @@ async function run() {
   // await updateTeamFile(gcArticlesTeamMembers, branchName);
 
   //Product Suite
-  // await createAndUpdateFiles(productSuiteEnNew, existingContentEN.data.tree, "en", "product-suite/product/", branchName);
-  // await createAndUpdateFiles(productSuiteFrNew, existingContentFR.data.tree, "fr", "product-suite/product/", branchName);
-  await createAndUpdateFiles(gcArticlesProductSuiteEn, existingContentEN.data.tree, "en", "product-suite/product/", branchName);
-  await createAndUpdateFiles(gcArticlesProductSuiteFr, existingContentFR.data.tree, "fr", "prduct-suite/product/", branchName)
+  await createAndUpdateFiles(productSuiteEnNew, existingContentEN.data.tree, "en", "product-suite/product/", branchName);
+  await createAndUpdateFiles(productSuiteFrNew, existingContentFR.data.tree, "fr", "product-suite/product/", branchName);
+  // await createAndUpdateFiles(gcArticlesProductSuiteEn, existingContentEN.data.tree, "en", "product-suite/product/", branchName);
+  // await createAndUpdateFiles(gcArticlesProductSuiteFr, existingContentFR.data.tree, "fr", "prduct-suite/product/", branchName)
 
   //Guides
   await createAndUpdateFiles(guidesEnNew, existingContentEN.data.tree, "en", "guides/resources/", branchName);
