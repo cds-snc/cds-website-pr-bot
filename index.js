@@ -242,10 +242,6 @@ async function run() {
   await createAndUpdateFiles(resourcesEnNew, existingContentEN.data.tree, "en", "tools-and-resources/resources/", branchName);
   await createAndUpdateFiles(resourcesFrNew, existingContentFR.data.tree, "fr", "tools-and-resources/resources/", branchName);
 
-  // Team Members
-  await updateTeamFile(teamMembersNew, branchName);
-  // await updateTeamFile(gcArticlesTeamMembers, branchName);
-
   //Product Suite
   await createAndUpdateFiles(productSuiteEnNew, existingContentEN.data.tree, "en", "product-suite/product/", branchName);
   await createAndUpdateFiles(productSuiteFrNew, existingContentFR.data.tree, "fr", "product-suite/product/", branchName);
