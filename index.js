@@ -30,7 +30,7 @@ async function closePRs() {
   // Close old auto PRs
   const { data: prs } = await octokit.pulls.list({
     owner: 'cds-snc',
-    repo: 'digital-canada-ca',
+    repo: 'digital-canada-ca-website',
     state: 'open'
   });
 
@@ -38,13 +38,13 @@ async function closePRs() {
     if (pr.title.startsWith("[AUTO-PR]")) {
       await octokit.pulls.update({
         owner: 'cds-snc',
-        repo: 'digital-canada-ca',
+        repo: 'digital-canada-ca-website',
         pull_number: pr.number,
         state: "closed"
       });
       await octokit.git.deleteRef({
         owner: 'cds-snc',
-        repo: 'digital-canada-ca',
+        repo: 'digital-canada-ca-website',
         ref: `heads/${pr.head.ref}`
       });
     }
@@ -63,7 +63,7 @@ const getHeadSha = async (repo, branch = 'main') => {
 const getExistingContent = async (path) => {
   const { data: data } = await octokit.repos.getContent({
     owner: 'cds-snc',
-    repo: 'digital-canada-ca',
+    repo: 'digital-canada-ca-website',
     path: path,
   });
   return data;
@@ -83,7 +83,7 @@ const createAndUpdateFiles = async (newFiles, oldFiles, lang, subpath, branchNam
       // Create new File
       await octokit.repos.createOrUpdateFileContents({
         owner: 'cds-snc',
-        repo: 'digital-canada-ca',
+        repo: 'digital-canada-ca-website',
         path: path + subpath + newFiles[f].fileName,
         content: content,
         branch: branchName,
@@ -92,14 +92,14 @@ const createAndUpdateFiles = async (newFiles, oldFiles, lang, subpath, branchNam
     } else {
       await octokit.repos.getContent({
         owner: 'cds-snc',
-        repo: 'digital-canada-ca',
+        repo: 'digital-canada-ca-website',
         path: path + exists[0].path
       }).then(async result => {
         if (Base64.decode(result.data.content) != newFiles[f].body) {
           // Update existing file
           await octokit.repos.createOrUpdateFileContents({
             owner: 'cds-snc',
-            repo: 'digital-canada-ca',
+            repo: 'digital-canada-ca-website',
             sha: exists[0].sha, // if update this is required
             path: path + exists[0].path,
             content: content,
@@ -112,35 +112,12 @@ const createAndUpdateFiles = async (newFiles, oldFiles, lang, subpath, branchNam
   }
 }
 
-const updateTeamFile = async (newFile, branchName) => {
-
-  let content = Base64.encode(newFile[0].body)
-  await octokit.repos.getContent({
-    owner: 'cds-snc',
-    repo: 'digital-canada-ca',
-    path: "data/team.yml"
-  }).then(async result => {
-    if (Base64.decode(result.data.content) != newFile[0].body) {
-      // Update existing file
-      await octokit.repos.createOrUpdateFileContents({
-        owner: 'cds-snc',
-        repo: 'digital-canada-ca',
-        sha: result.data.sha,
-        path: "data/team.yml",
-        content: content,
-        branch: branchName,
-        message: "Updated file: " + newFile[0].fileName
-      })
-    }
-  })
-}
-
 /*
 Steps to update:
 1. Strapi webhook calls this on a change in Strapi
-2. Pull down digital-canada-ca
+2. Pull down digital-canada-ca-website
 3. Run build content script to generate / update markdown
-4. Do a pull request onto digital-canada-ca with the new content
+4. Do a pull request onto digital-canada-ca-website with the new content
 */
 
 async function run() {
@@ -151,19 +128,19 @@ async function run() {
   // get content tree(s) shas
   let treeShas = await octokit.repos.getContent({
     owner: 'cds-snc',
-    repo: 'digital-canada-ca',
+    repo: 'digital-canada-ca-website',
     path: "/content",
   });
 
   let existingContentEN = await octokit.git.getTree({
     owner: 'cds-snc',
-    repo: 'digital-canada-ca',
+    repo: 'digital-canada-ca-website',
     tree_sha: treeShas.data.filter(tree => tree.name === "en")[0].sha, // filter by name in case this directory is ever modified / added to
     recursive: true
   });
   let existingContentFR = await octokit.git.getTree({
     owner: 'cds-snc',
-    repo: 'digital-canada-ca',
+    repo: 'digital-canada-ca-website',
     tree_sha: treeShas.data.filter(tree => tree.name === "fr")[0].sha,
     recursive: true
   });
@@ -229,12 +206,12 @@ async function run() {
   var gcArticlesGuidesFr = await getGuidesFromGCArticles("fr");
 
   // Create Ref
-  const websiteSha = await getHeadSha("digital-canada-ca", "main");
+  const websiteSha = await getHeadSha("digital-canada-ca-website", "main");
   branchName = `content-release-${new Date().getTime()}`;
 
   let refs = await octokit.git.createRef({
     owner: 'cds-snc',
-    repo: 'digital-canada-ca',
+    repo: 'digital-canada-ca-website',
     ref: `refs/heads/${branchName}`,
     sha: websiteSha
   });
@@ -284,12 +261,12 @@ async function run() {
   // if there is content - compare shas of most recent commit on the branch and main
   let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
     owner: 'cds-snc',
-    repo: 'digital-canada-ca',
+    repo: 'digital-canada-ca-website',
     sha: branchName
   });
   let maincommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
     owner: 'cds-snc',
-    repo: 'digital-canada-ca',
+    repo: 'digital-canada-ca-website',
     sha: "main"
   })
   if (branchcommit.data && branchcommit.data.sha != maincommit.data.sha) {
@@ -298,7 +275,7 @@ async function run() {
     // Make the new PR
     await octokit.pulls.create({
       owner: 'cds-snc',
-      repo: 'digital-canada-ca',
+      repo: 'digital-canada-ca-website',
       title: `[AUTO-PR] New content release -  ${new Date().toISOString()}`,
       head: branchName,
       base: 'main',
@@ -310,7 +287,7 @@ async function run() {
     // no commits, delete the ref
     await octokit.git.deleteRef({
       owner: 'cds-snc',
-      repo: 'digital-canada-ca',
+      repo: 'digital-canada-ca-website',
       ref: `heads/${branchName}`
     });
   }
