@@ -13,7 +13,7 @@
     "js-base64": "^3.6.0"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.24.1",
+    "@vercel/ncc": "^0.38.1",
     "dotenv": "^8.2.0"
   }
 }
