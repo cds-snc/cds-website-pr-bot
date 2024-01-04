@@ -4,9 +4,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: cds-snc/cds-website-pr-bot@main
-      env:
-        TOKEN: ${{ secrets.TOKEN }}
-        STRAPI_ENDPOINT: https://strapi.cdssandbox.xyz/
-        GC_ARTICLES_ENDPOINT_EN: https://articles.alpha.canada.ca/cds-snc/wp-json/wp/v2/
-        GC_ARTICLES_ENDPOINT_FR: https://articles.alpha.canada.ca/cds-snc/fr/wp-json/wp/v2/
+      - name: Impersonate SRE Read/Write GH App
+        uses: tibdex/github-app-token@d43935be6b0b2c955141960c683050fd75911341
+        id: generate_token
+        with:
+          app_id: ${{ secrets.SRE_BOT_RW_APP_ID }}
+          private_key: ${{ secrets.SRE_BOT_RW_PRIVATE_KEY}}
+
+      - name: Generate a PR
+        uses: cds-snc/cds-website-pr-bot@main
+        env:
+          TOKEN: ${{ steps.generate_token.outputs.token }}
+          STRAPI_ENDPOINT: https://strapi.cdssandbox.xyz/
+          GC_ARTICLES_ENDPOINT_EN: https://articles.alpha.canada.ca/cds-snc/wp-json/wp/v2/
+          GC_ARTICLES_ENDPOINT_FR: https://articles.alpha.canada.ca/cds-snc/fr/wp-json/wp/v2/
