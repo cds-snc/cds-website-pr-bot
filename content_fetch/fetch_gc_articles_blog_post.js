@@ -22,7 +22,7 @@ var getBlogPostsFromGCArticles = async function(lang) {
 
         out += "image: " + post._embedded['wp:featuredmedia'][0].media_details.sizes.full.source_url + "\n";
         out += "image-alt: " + post._embedded['wp:featuredmedia'][0].alt_text + "\n";
-        out += "thumb: " + post._embedded['wp:featuredmedia'][0].media_details.sizes.full.source_url + "\n";
+        out += "thumb: " + post._embedded['wp:featuredmedia'][0].media_details.sizes.large.source_url + "\n";
         out += "translationKey: " + post.slug + "\n";
         out += "---\n";
 
