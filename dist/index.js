@@ -83,6 +83,7 @@ var getBlogPostsFromGCArticles = async function(lang) {
         out += "image: " + post._embedded['wp:featuredmedia'][0].media_details.sizes.full.source_url + "\n";
         out += "image-alt: " + post._embedded['wp:featuredmedia'][0].alt_text + "\n";
         out += "thumb: " + post._embedded['wp:featuredmedia'][0].media_details.sizes.full.source_url + "\n";
+        out += "category: " + post._embedded['wp:term'][0][0].name + "\n"
         out += "translationKey: " + post.slug + "\n";
         out += "---\n";
 
