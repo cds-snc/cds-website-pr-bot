@@ -71,7 +71,7 @@ var getBlogPostsFromGCArticles = async function(lang) {
       for (p in data) {
         let post = data[p]
         let replacedTitle = post.title.rendered.replace(/&#8217;/g, "’")
-        let category = post._embedded['wp:term']
+        // let category = post._embedded['wp:term']
         let out = "";
         out += "---\n";
         out += "layout: blog\n";
@@ -84,11 +84,11 @@ var getBlogPostsFromGCArticles = async function(lang) {
         out += "image: " + post._embedded['wp:featuredmedia'][0].media_details.sizes.full.source_url + "\n";
         out += "image-alt: " + post._embedded['wp:featuredmedia'][0].alt_text + "\n";
         out += "thumb: " + post._embedded['wp:featuredmedia'][0].media_details.sizes.full.source_url + "\n";
-        if (category) {
-          out += "category: " + category[0][0].name + "\n"
-        } else {
-          out += "category: none" + "\n"
-        }
+        // if (category) {
+        //   out += "category: " + category[0][0].name + "\n"
+        // } else {
+        //   out += "category: none" + "\n"
+        // }
         out += "translationKey: " + post.slug + "\n";
         out += "---\n";
 
