@@ -98,9 +98,9 @@ var getBlogPostsFromGCArticles = async function(lang) {
             categoryArray.push(`'${innerCategory[i].name}'`)
           }
 
-          out += "category: " + `[${categoryArray}]`
+          out += "category: " + `[${categoryArray}]` + "\n"
         } else {
-          out += "category ['none']"
+          out += "category ['none']" + "\n"
         }
         out += "translationKey: " + post.slug + "\n";
         out += "---\n";
