@@ -24,10 +24,23 @@ var getBlogPostsFromGCArticles = async function(lang) {
         out += "image: " + post._embedded['wp:featuredmedia'][0].media_details.sizes.full.source_url + "\n";
         out += "image-alt: " + post._embedded['wp:featuredmedia'][0].alt_text + "\n";
         out += "thumb: " + post._embedded['wp:featuredmedia'][0].media_details.sizes.full.source_url + "\n";
+        // if (category) {
+        //   out += "category: " + category[0][0].name + "\n"
+        // } else {
+        //   out += "category: none" + "\n"
+        // }
+
         if (category) {
-          out += "category: " + category[0][0].name + "\n"
+          let innerCategory = category[0]
+          let categoryArray = []
+
+          for (let i = 0; i < innerCategory.length; i++ ) {
+            categoryArray.push(`'${innerCategory[i].name}'`)
+          }
+
+          out += "category: " + `[${categoryArray}]`
         } else {
-          out += "category: none" + "\n"
+          out += "category ['none']"
         }
         out += "translationKey: " + post.slug + "\n";
         out += "---\n";
