@@ -118,121 +118,6 @@ module.exports = getBlogPostsFromGCArticles;
 
 /***/ }),
 
-/***/ 9587:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const fetch = __nccwpck_require__(467);
-const buildFileName = __nccwpck_require__(8948);
-const {Headers} = __nccwpck_require__(467);
-var myHeaders = new Headers();
-myHeaders.append('Cache-Control', 'no-cache');
-
-var meta = {
-    method: 'GET',
-    headers: myHeaders
-}
-
-var getGCArticlesCoachingAndAdvice = async function (lang) {
-    let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "product?_embed&categories=12" : process.env.GC_ARTICLES_ENDPOINT_FR + "product?_embed&categories=22";
-    return await fetch(url, meta)
-    .then(response => response.json())
-    .then(data => {
-        let files = [];
-        for (p in data) {
-            let post = data[p];
-            let parsed = JSON.parse(post.meta.cds_product)
-            let out = "";
-            out += "---\n";
-            out += "title: '" + post.title.rendered + "'\n";
-            out += "translationKey: " + post.slug + "\n";
-            out += "description: >-\n";
-            out += "  " + parsed.description + "\n";
-
-            if (parsed.button_link) {
-                out += "product-url: " + parsed.button_link + "\n";
-            }
-            if (parsed.parsed_cds_product_links_related.length > 0) {
-                out += "partners:\n";
-                for (pp in parsed.parsed_cds_product_links_related) {
-                    let partner = parsed.parsed_cds_product_links_related[pp];
-                    out += "  - name: " + partner["text"] + "\n";
-                    out += "    url: " + partner["link"] + "\n";
-                }
-            }
-            if (parsed.parsed_cds_product_links.length > 0) {
-                out += "links:\n";
-                for (l in parsed.parsed_cds_product_links) {
-                    let link = parsed.parsed_cds_product_links[l];
-                    out += "  - name: " + link["text"] + "\n";
-                    out += "    url: " + link["link"] + "\n"; 
-                }
-            }
-            out += "---\n";
-
-            let slug = buildFileName(post.title.rendered)
-            files.push({body: out, fileName: slug + ".md"})
-        }
-        return files;
-    }
-    )
-}
-
-module.exports = getGCArticlesCoachingAndAdvice
-
-/***/ }),
-
-/***/ 1830:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const fetch = __nccwpck_require__(467);
-const buildFileName = __nccwpck_require__(8948);
-const {Headers} = __nccwpck_require__(467);
-var myHeaders = new Headers();
-myHeaders.append('Cache-Control', 'no-cache');
-
-var meta = {
-    method: 'GET',
-    headers: myHeaders
-}
-
-var getGCArticlesGuides = async function (lang) {
-    let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "product?_embed&categories=11" : process.env.GC_ARTICLES_ENDPOINT_FR + "product?_embed&categories=18";
-
-    return await fetch(url, meta)
-    .then(response => response.json())
-    .then(data => {
-        let files = [];
-        for (p in data) {
-            let post = data[p];
-            let parsed = JSON.parse(post.meta.cds_product)
-            let out = "";
-            out += "---\n";
-            out += "Title: " + post.title.rendered + "\n";
-            out += "TranslationKey: " + post.slug  + "\n";
-            out += "Description: >-\n";
-            out += "  " + parsed.description + "\n";
-            out += "ButtonText: " + parsed.button_text + "\n";
-            out += "ButtonAria: " + parsed.button_aria + "\n";
-            out += "Weight: " + parsed.weight + "\n";
-            out += "TagID: " + parsed.tag_id + "\n";
-            out += "LinkToGuide: " + parsed.button_link + "\n";
-            out += "---\n\n";
-
-            let slug = buildFileName(post.title.rendered);
-            
-            files.push({body: out, fileName: slug + ".md"});
-        }
-        return files
-    }
-    ).catch((e) => {
-        console.error(e)
-    })
-}
-
-module.exports = getGCArticlesGuides
-
-/***/ }),
-
 /***/ 7104:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
@@ -272,263 +157,6 @@ var getJobPostsFromGCArticles = async function (lang) {
 }
 
 module.exports = getJobPostsFromGCArticles;
-
-/***/ }),
-
-/***/ 1811:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const fetch = __nccwpck_require__(467);
-const buildFileName = __nccwpck_require__(8948);
-
-var getGuides = async function(lang) {
-    return await fetch(process.env.STRAPI_ENDPOINT + "guides-" + lang + "s")
-    .then(response => response.json())
-    .then( 
-       data => {
-           let files = [];
-           for (p in data) {
-               let post = data[p]
-               let out = "";
-               out += "---\n";
-               out += "Title: " + post.Title + "\n";
-               out += "TranslationKey: " + post.TranslationID + "\n";
-               out += "Description: >-\n";
-               out += "  " + post.Description + "\n";
-               out += "ButtonText: " + post.ButtonText + "\n"
-               out += "ButtonAria: " + post.ButtonAria + "\n"
-               out += "Weight: " + post.Weight + "\n"
-               out += "TagID: " + post.TagID + "\n"
-               out += "LinkToGuide: " + post.LinkToGuide + "\n"
-               out += "---\n\n";
-
-               let slug = buildFileName(post.Title);
-               files.push({body: out, fileName: slug + ".md"})
-           }
-           return files
-       } 
-    ).catch((e) => {
-        console.error(e)
-    }) 
-}
-module.exports = getGuides
-
-/***/ }),
-
-/***/ 2866:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const fetch = __nccwpck_require__(467);
-const buildFileName = __nccwpck_require__(8948);
-
-var getJobPosts = async function(lang) {
-  return await fetch(process.env.STRAPI_ENDPOINT + "job-posting-" + lang + "s")
-  .then(response => response.json())
-  .then(
-    data => {
-      let files = [];
-      for (p in data) {
-        let post = data[p]
-        let out = "";
-        out += "---\n";
-        out += "layout: job-posting\n";
-        out += "type: section\n";
-        out += "title: '" + post.Title + "'\n";
-        out += "description: >-\n";
-        out += "  " + post.Description + "\n";
-        out += "archived: " + post.Archived + "\n";
-        out += "translationKey: " + post.TranslationID + "\n";
-        out += "leverId: " + post.LeverId + "\n";
-        out += "---\n\n";
-        out += post.Body + "\n";
-
-        let slug = buildFileName(post.Title + `- ${post.LeverId}`);
-        
-        files.push({body: out, fileName: slug + ".md"})
-      }
-      
-      return files;
-    }
-  )
-}
-
-module.exports = getJobPosts;
-
-/***/ }),
-
-/***/ 5847:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const fetch = __nccwpck_require__(467);
-const buildFileName = __nccwpck_require__(8948);
-
-var getProductSuite = async function(lang) {
-    return await fetch(process.env.STRAPI_ENDPOINT  + "product-suite-" + lang + "s")
-    .then(response => response.json())
-    .then(
-        data => {
-            let files = [];
-            for (p in data) {
-                let post = data[p]
-                let out = "";
-                out += "---\n";
-                out += "Title: " + post.Title + "\n";
-                out += "Subtitle: " + post.Subtitle + "\n";
-                out += "TranslationKey: " + post.TranslationID + "\n";
-                out += "Description: >-\n";
-                out += "  " + post.Description + "\n";
-                out += "SecondDescription: >-\n";
-                out += "  " + post.SecondDescription + "\n";
-                out += "ButtonText: " + post.ButtonText + "\n"
-                out += "ButtonAria: " + post.ButtonAria + "\n"
-                out += "Weight: " + post.Weight + "\n"
-                out += "LinkToProductSuite: " + post.LinkToProductSuite + "\n"
-                out += "TagID: " + post.TagID + "\n"
-                out += "---\n\n";
-
-                let slug = buildFileName(post.Title);
-                files.push({body: out, fileName: slug + ".md"})
-            }
-
-            return files
-        }
-    ).catch((e) => {
-        console.error(e)
-    }) 
-
-}
-
-module.exports  = getProductSuite;
-
-/***/ }),
-
-/***/ 303:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const fetch = __nccwpck_require__(467);
-const buildFileName = __nccwpck_require__(8948);
-
-var getProducts = async function(lang, productType) {
-  return await fetch(process.env.STRAPI_ENDPOINT + productType + lang + "s")
-  .then(response => response.json())
-  .then(
-    data => {
-      let files = [];
-      for (p in data) {
-        let post = data[p]
-        let out = "";
-        out += "---\n";
-        out += "title: '" + post.title + "'\n";
-        out += "translationKey: " + post.TranslationID + "\n";
-        out += "description: >-\n";
-        out += "  " + post.description + "\n";
-        
-        if (post.LinkToProduct)
-          out += "product-url: " + post.LinkToProduct + "\n";
-
-        out += "phase: " + post.phase + "\n";
-        out += "status: " + (post.status == "inflight" ? "in-flight" : post.status) + "\n"; // strapi regex does not allow the dash
-        out += "onhomepage: " + post.onhomepage + "\n";
-
-        out += "contact:\n";
-        for (c in post.contacts) {
-          out += "  - email: " + post.contacts[c].email + "\n";
-          out += "    name: " + post.contacts[c].name + "\n";
-        }
-
-        if (post.partners.length > 0) {
-          out += "partners:\n";
-          for (pp in post.partners) {
-            let partner = post.partners[pp];
-            out += "  - name: " + partner["name" + lang.toUpperCase()] + "\n";
-            out += "    url: " + partner["url" + lang.toUpperCase()] + "\n";
-          }
-        }
-
-        if (post.product_links.length > 0) {
-          out += "links:\n";
-          for (l in post.product_links) {
-            let link = post.product_links[l];
-            out += "  - name: " + link["linkText" + lang.toUpperCase()] + "\n";
-            out += "    url: " + link["url" + lang.toUpperCase()] + "\n";
-          }
-        }
-        out += "---\n";
-
-        let slug = buildFileName(post.title);
-
-        files.push({body: out, fileName: slug + ".md"})
-      }
-      return files;
-    }
-  )
-}
-
-module.exports = getProducts;
-
-/***/ }),
-
-/***/ 3466:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const fetch = __nccwpck_require__(467);
-
-var getTeamMembers = async function() {
-  var out = "exec:\n";
-  out += await fetch(process.env.STRAPI_ENDPOINT + "team-members?KeyContact=true&_sort=name:ASC")
-  .then(response => response.json())
-  .then(
-    data => {
-      let txt = "";
-      for (p in data) {
-        let member = data[p]
-        txt += addTeamMember(member);
-      }
-      return txt;
-    }
-  );
-  out += "team:\n";
-  out += await fetch(process.env.STRAPI_ENDPOINT + "team-members?KeyContact=false&_sort=name:ASC")
-  .then(response => response.json())
-  .then(
-    data => {
-      let txt = "";
-      for (p in data) {
-        let member = data[p]
-        txt += addTeamMember(member);
-      }
-      return txt;
-    }
-  )
-
-  // return a single file in an array so existing function can be re-used to process
-  return [{body: out, fileName: "team.yml"}];
-}
-
-var addTeamMember = function(member) {
-  let txt = ""
-  txt += "  - archived: " + member.archived + "\n";
-  txt += "    name: " + member.name + "\n";
-  txt += "    title:\n"
-  txt += "      en: " + member.titleEN + "\n";
-  txt += "      fr: " + member.titleFR + "\n";
-
-  let hash = (member.Photo.formats.small ? member.Photo.formats.small.hash : member.Photo.hash);
-  txt += "    imagehash: " + hash + "\n";
-  
-  if (member.email)
-    txt += "    email: " + member.email + "\n";
-  if (member.github)
-    txt += "    github: " + member.github + "\n";
-  if (member.linkedin)
-    txt += "    linkedin: " + member.linkedin + "\n";
-  if (member.twitter)
-    txt += "    twitter: " + member.twitter + "\n";
-  
-  return txt;
-}
-
-module.exports = getTeamMembers;
 
 /***/ }),
 
@@ -8671,6 +8299,14 @@ module.exports = buildFileName;
 
 /***/ }),
 
+/***/ 112:
+/***/ ((module) => {
+
+module.exports = eval("require")("./content_fetch/fetch_job_posts");
+
+
+/***/ }),
+
 /***/ 2877:
 /***/ ((module) => {
 
@@ -8850,23 +8486,12 @@ const myToken = process.env.TOKEN;
 const octokit = github.getOctokit(myToken);
 
 const getBlogPosts = __nccwpck_require__(5084);
-const getJobPosts = __nccwpck_require__(2866);
-
-const getTeamMembers = __nccwpck_require__(3466);
-const getProducts = __nccwpck_require__(303);
-
-const getProductSuite = __nccwpck_require__(5847);
-const getGuides = __nccwpck_require__(1811);
+const getJobPosts = __nccwpck_require__(112);
 
 const getBlogPostsFromGCArticles = __nccwpck_require__(4109);
 
 const getJobPostsFromGCArticles = __nccwpck_require__(7104);
 
-// const getTeamMembersFromGCArticles = require("./content_fetch/fetch_gc_articles_team_members");
-
-const getCoachingAndAdviceFromGCArticles = __nccwpck_require__(9587);
-// const getProductSuiteFromGCArticles = require("./content_fetch/fetch_gc_articles_product_suite");
-const getGuidesFromGCArticles = __nccwpck_require__(1830);
 
 async function closePRs() {
   // Close old auto PRs
@@ -9000,31 +8625,6 @@ async function run() {
   var jobPostsEnNew = await getJobPosts("en");
   var jobPostsFrNew = await getJobPosts("fr");
 
-  // Team Members
-  var teamMembersNew = await getTeamMembers();
-
-
-  // Products
-  // endpoints are: "products-partnerships-lang", "products-platform-lang", "products-resources-lang"
-
-  // Partnerships
-  var productsPartnershipsEnNew = await getProducts("en", "products-partnerships-");
-  var productsPartnershipsFrNew = await getProducts("fr", "products-partnerships-");
-  // Platform
-  var productsPlatformEnNew = await getProducts("en", "products-platform-");
-  var productsPlatformFrNew = await getProducts("fr", "products-platform-");
-  // Resources
-  var resourcesEnNew = await getProducts("en", "products-resources-");
-  var resourcesFrNew = await getProducts("fr", "products-resources-");
-
-  //Product Suite
-  var productSuiteEnNew = await getProductSuite("en")
-  var productSuiteFrNew = await getProductSuite("fr")
-
-  //Guides
-  var guidesEnNew = await getGuides("en")
-  var guidesFrNew = await getGuides("fr")
-
   //GC Articles Blogs
   var gcArticlesBlogsEn = await getBlogPostsFromGCArticles("en");
   var gcArticlesBlogsFr = await getBlogPostsFromGCArticles("fr");
@@ -9032,20 +8632,6 @@ async function run() {
   //GC Articles Jobs
   var gcArticlesJobPostsEn = await getJobPostsFromGCArticles("en");
   var gcArticlesJobPostsFr = await getJobPostsFromGCArticles("fr");
-
-  //GC Articles Team members
-  // var gcArticlesTeamMembers = await getTeamMembersFromGCArticles();
-
-  //GC Articles Coaching and Advice
-  var gcArticlesCoachingAndAdviceEn = await getCoachingAndAdviceFromGCArticles("en");
-  var gcArticlesCoachingAndAdviceFr = await getCoachingAndAdviceFromGCArticles("fr");
-
-  //GC Articles Product Suite
-  // var gcArticlesProductSuiteEn = await getProductSuiteFromGCArticles("en");
-  // var gcArticlesProductSuiteFr = await getProductSuiteFromGCArticles("fr");
-  //GC Article Guides
-  var gcArticlesGuidesEn = await getGuidesFromGCArticles("en");
-  var gcArticlesGuidesFr = await getGuidesFromGCArticles("fr");
 
   // Create Ref
   const websiteSha = await getHeadSha("digital-canada-ca-website", "main");
@@ -9071,30 +8657,6 @@ async function run() {
   await createAndUpdateFiles(gcArticlesJobPostsEn, existingContentEN.data.tree, "en", "careers/positions/", branchName)
   await createAndUpdateFiles(gcArticlesJobPostsFr, existingContentFR.data.tree, "fr", "careers/positions/", branchName)
 
-  // Products
-  // Partnerships
-  await createAndUpdateFiles(productsPartnershipsEnNew, existingContentEN.data.tree, "en", "products/products/", branchName);
-  await createAndUpdateFiles(productsPartnershipsFrNew, existingContentFR.data.tree, "fr", "products/products/", branchName);
-  await createAndUpdateFiles(gcArticlesCoachingAndAdviceEn, existingContentEN.data.tree, "en", "products/products/", branchName);
-  await createAndUpdateFiles(gcArticlesCoachingAndAdviceFr, existingContentFR.data.tree, "fr", "products/products/", branchName);
-  // Platform
-  await createAndUpdateFiles(productsPlatformEnNew, existingContentEN.data.tree, "en", "tools-and-resources/platform-tools/", branchName);
-  await createAndUpdateFiles(productsPlatformFrNew, existingContentFR.data.tree, "fr", "tools-and-resources/platform-tools/", branchName);
-  // Resources
-  await createAndUpdateFiles(resourcesEnNew, existingContentEN.data.tree, "en", "tools-and-resources/resources/", branchName);
-  await createAndUpdateFiles(resourcesFrNew, existingContentFR.data.tree, "fr", "tools-and-resources/resources/", branchName);
-
-  //Product Suite
-  await createAndUpdateFiles(productSuiteEnNew, existingContentEN.data.tree, "en", "product-suite/product/", branchName);
-  await createAndUpdateFiles(productSuiteFrNew, existingContentFR.data.tree, "fr", "product-suite/product/", branchName);
-  // await createAndUpdateFiles(gcArticlesProductSuiteEn, existingContentEN.data.tree, "en", "product-suite/product/", branchName);
-  // await createAndUpdateFiles(gcArticlesProductSuiteFr, existingContentFR.data.tree, "fr", "prduct-suite/product/", branchName)
-
-  //Guides
-  await createAndUpdateFiles(guidesEnNew, existingContentEN.data.tree, "en", "guides/resources/", branchName);
-  await createAndUpdateFiles(guidesFrNew, existingContentFR.data.tree, "fr", "guides/resources/", branchName);
-  await createAndUpdateFiles(gcArticlesGuidesEn, existingContentEN.data.tree, "en", "guides/resources/", branchName);
-  await createAndUpdateFiles(gcArticlesGuidesFr, existingContentFR.data.tree, "fr", "guides/resources/", branchName);
 
   // if there is content - compare shas of most recent commit on the branch and main
   let branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
