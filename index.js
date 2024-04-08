@@ -7,8 +7,8 @@ const Base64 = require('js-base64').Base64;
 const myToken = process.env.TOKEN;
 const octokit = github.getOctokit(myToken);
 
-const getBlogPosts = require("./content_fetch/fetch_blog_posts");
-const getJobPosts = require("./content_fetch/fetch_job_posts");
+// const getBlogPosts = require("./content_fetch/fetch_blog_posts");
+// const getJobPosts = require("./content_fetch/fetch_job_posts");
 
 const getBlogPostsFromGCArticles = require("./content_fetch/fetch_gc_articles_blog_post");
 
@@ -141,11 +141,11 @@ async function run() {
 
 
   // Blog Posts
-  var blogPostsEnNew = await getBlogPosts("en");
-  var blogPostsFrNew = await getBlogPosts("fr");
+  // var blogPostsEnNew = await getBlogPosts("en");
+  // var blogPostsFrNew = await getBlogPosts("fr");
   // Job Postings
-  var jobPostsEnNew = await getJobPosts("en");
-  var jobPostsFrNew = await getJobPosts("fr");
+  // var jobPostsEnNew = await getJobPosts("en");
+  // var jobPostsFrNew = await getJobPosts("fr");
 
   //GC Articles Blogs
   var gcArticlesBlogsEn = await getBlogPostsFromGCArticles("en");
@@ -169,13 +169,13 @@ async function run() {
 
   // Create / Update file commits
   // Blog posts
-  await createAndUpdateFiles(blogPostsEnNew, existingContentEN.data.tree, "en", "blog/posts/", branchName);
-  await createAndUpdateFiles(blogPostsFrNew, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
+  // await createAndUpdateFiles(blogPostsEnNew, existingContentEN.data.tree, "en", "blog/posts/", branchName);
+  // await createAndUpdateFiles(blogPostsFrNew, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
   await createAndUpdateFiles(gcArticlesBlogsEn, existingContentEN.data.tree, "en", "blog/posts/", branchName);
   await createAndUpdateFiles(gcArticlesBlogsFr, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
   // Job Postings
-  await createAndUpdateFiles(jobPostsEnNew, existingContentEN.data.tree, "en", "careers/positions/", branchName);
-  await createAndUpdateFiles(jobPostsFrNew, existingContentFR.data.tree, "fr", "careers/positions/", branchName);
+  // await createAndUpdateFiles(jobPostsEnNew, existingContentEN.data.tree, "en", "careers/positions/", branchName);
+  // await createAndUpdateFiles(jobPostsFrNew, existingContentFR.data.tree, "fr", "careers/positions/", branchName);
   await createAndUpdateFiles(gcArticlesJobPostsEn, existingContentEN.data.tree, "en", "careers/positions/", branchName)
   await createAndUpdateFiles(gcArticlesJobPostsFr, existingContentFR.data.tree, "fr", "careers/positions/", branchName)
 
