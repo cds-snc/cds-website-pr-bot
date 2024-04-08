@@ -160,6 +160,47 @@ module.exports = getJobPostsFromGCArticles;
 
 /***/ }),
 
+/***/ 2866:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const fetch = __nccwpck_require__(467);
+const buildFileName = __nccwpck_require__(8948);
+
+var getJobPosts = async function(lang) {
+  return await fetch(process.env.STRAPI_ENDPOINT + "job-posting-" + lang + "s")
+  .then(response => response.json())
+  .then(
+    data => {
+      let files = [];
+      for (p in data) {
+        let post = data[p]
+        let out = "";
+        out += "---\n";
+        out += "layout: job-posting\n";
+        out += "type: section\n";
+        out += "title: '" + post.Title + "'\n";
+        out += "description: >-\n";
+        out += "  " + post.Description + "\n";
+        out += "archived: " + post.Archived + "\n";
+        out += "translationKey: " + post.TranslationID + "\n";
+        out += "leverId: " + post.LeverId + "\n";
+        out += "---\n\n";
+        out += post.Body + "\n";
+
+        let slug = buildFileName(post.Title + `- ${post.LeverId}`);
+
+        files.push({body: out, fileName: slug + ".md"})
+      }
+
+      return files;
+    }
+  )
+}
+
+module.exports = getJobPosts;
+
+/***/ }),
+
 /***/ 4087:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -8299,14 +8340,6 @@ module.exports = buildFileName;
 
 /***/ }),
 
-/***/ 112:
-/***/ ((module) => {
-
-module.exports = eval("require")("./content_fetch/fetch_job_posts");
-
-
-/***/ }),
-
 /***/ 2877:
 /***/ ((module) => {
 
@@ -8486,7 +8519,7 @@ const myToken = process.env.TOKEN;
 const octokit = github.getOctokit(myToken);
 
 const getBlogPosts = __nccwpck_require__(5084);
-const getJobPosts = __nccwpck_require__(112);
+const getJobPosts = __nccwpck_require__(2866);
 
 const getBlogPostsFromGCArticles = __nccwpck_require__(4109);
 
