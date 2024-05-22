@@ -8685,10 +8685,10 @@ async function run() {
   await createAndUpdateFiles(gcArticlesBlogsEn, existingContentEN.data.tree, "en", "blog/posts/", branchName);
   await createAndUpdateFiles(gcArticlesBlogsFr, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
   // Job Postings
-  await createAndUpdateFiles(jobPostsEnNew, existingContentEN.data.tree, "en", "careers/positions/", branchName);
-  await createAndUpdateFiles(jobPostsFrNew, existingContentFR.data.tree, "fr", "careers/positions/", branchName);
-  await createAndUpdateFiles(gcArticlesJobPostsEn, existingContentEN.data.tree, "en", "careers/positions/", branchName)
-  await createAndUpdateFiles(gcArticlesJobPostsFr, existingContentFR.data.tree, "fr", "careers/positions/", branchName)
+  await createAndUpdateFiles(jobPostsEnNew, existingContentEN.data.tree, "en", "jobs/positions/", branchName);
+  await createAndUpdateFiles(jobPostsFrNew, existingContentFR.data.tree, "fr", "jobs/positions/", branchName);
+  await createAndUpdateFiles(gcArticlesJobPostsEn, existingContentEN.data.tree, "en", "jobs/positions/", branchName)
+  await createAndUpdateFiles(gcArticlesJobPostsFr, existingContentFR.data.tree, "fr", "jobs/positions/", branchName)
 
 
   // if there is content - compare shas of most recent commit on the branch and main
