@@ -7,23 +7,24 @@ const generatePostContent = ( post ) => {
   
   let out = '';
   out += `---\n`;
-  out += `layout: blog\n`;
-  out += `title: '${ replacedTitle }'\n`;
-  out += `description: >-\n  '${ post.markdown.excerpt.rendered }'\n`;
   out += `author: '${ post.meta.gc_author_name }'\n`;
-  out += `date: '${ post.date }'\n`;
-  out += `image: ${ post._embedded[ 'wp:featuredmedia' ][ 0 ].media_details.sizes.full.source_url }\n`;
-  out += `image-alt: ${ post._embedded[ 'wp:featuredmedia' ][ 0 ].alt_text }\n`;
-  out += `thumb: ${ post._embedded[ 'wp:featuredmedia' ][ 0 ].media_details.sizes.full.source_url }\n`;
-
   // Process categories
+  out += `date: '${ post.date }'\n`;
+  out += `description: >-\n  '${ post.markdown.excerpt.rendered }'\n`;
+  if ( post._embedded[ 'wp:featuredmedia' ] ){
+    out += `image: ${ post._embedded[ 'wp:featuredmedia' ][ 0 ].media_details.sizes.full.source_url }\n`;
+    out += `image-alt: ${ post._embedded[ 'wp:featuredmedia' ][ 0 ].alt_text }\n`;
+    out += `thumb: ${ post._embedded[ 'wp:featuredmedia' ][ 0 ].media_details.sizes.full.source_url }\n`;
+  }
+  
+  out += `layout: blog\n`;
   if ( category ) {
     const categoryArray = category[ 0 ].map( cat => `'${ cat.name }'` );
-    out += `category: [ ${ categoryArray } ]\n`;
+    out += `tags: [ ${ categoryArray } ]\n`;
   } else {
-    out += `category: [ 'none' ]\n`;
+    out += `tags: [ '' ]\n`;
   }
-
+  out += `title: '${ replacedTitle }'\n`;
   out += `translationKey: ${ post.slug }\n`;
   out += `---\n`;
   out += `${ post.content.rendered }\n`;
