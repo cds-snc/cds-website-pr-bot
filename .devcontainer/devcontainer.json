@@ -1,0 +1,24 @@
+{
+    "name": "cds-website-pr-bot",
+    "image": "mcr.microsoft.com/vscode/devcontainers/base:bullseye",
+    "containerEnv": {
+      "SHELL": "/bin/zsh"
+    },
+    "features": {
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "23",
+            "installYarn": true
+        }
+    },
+    "customizations": {
+      "vscode": {
+        "extensions": [
+          "github.copilot",
+          "github.vscode-github-actions",
+          "esbenp.prettier-vscode",
+          "VisualStudioExptTeam.vscodeintellicode"
+        ]
+      }
+    },
+    "remoteUser": "vscode"
+  }
