@@ -1,14 +1,18 @@
-const fetch = require( 'node-fetch' );
-const buildFileName = require( "../utils/buildFileName" );
+const { fetch, buildFileName } = require( './shared' );
 
-const generatePostContent = ( post ) => {
+const getCategoryDetails = async ( categoryRef ) => {
+  const response = await fetch( categoryRef.href);
+  const categoryData = await response.json();
+  return categoryData[0];
+};
+
+const generatePostContent = async ( post ) => {
   const replacedTitle = post.title.rendered.replace( /&#8217;/g, "'" );
   const category = post._embedded[ 'wp:term' ];
   
   let out = '';
   out += `---\n`;
   out += `author: '${ post.meta.gc_author_name }'\n`;
-  // Process categories
   out += `date: '${ post.date }'\n`;
   out += `description: >-\n  '${ post.markdown.excerpt.rendered }'\n`;
   if ( post._embedded[ 'wp:featuredmedia' ] ){
@@ -17,6 +21,7 @@ const generatePostContent = ( post ) => {
     out += `thumb: ${ post._embedded[ 'wp:featuredmedia' ][ 0 ].media_details.sizes.full.source_url }\n`;
   }
   
+  // Process categories
   out += `layout: blog\n`;
   if ( category ) {
     const categoryArray = category[ 0 ].map( cat => `'${ cat.name }'` );
