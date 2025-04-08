@@ -9,7 +9,7 @@
   "author": "Bethany Dunfield",
   "license": "ISC",
   "dependencies": {
-    "@actions/github": "^4.0.0",
+    "@actions/github": "^6.0.0",
     "js-base64": "^3.6.0"
   },
   "devDependencies": {
