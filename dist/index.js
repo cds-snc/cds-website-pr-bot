@@ -68,11 +68,12 @@ const getCategoryDetails = async ( categoryRef ) => {
 
 const generatePostContent = async ( post ) => {
   const replacedTitle = post.title.rendered.replace( /&#8217;/g, "'" );
-  const category = post._embedded[ 'wp:term' ];
+  const categoryRefs = post._embedded[ 'wp:term' ];
   
   let out = '';
   out += `---\n`;
   out += `author: '${ post.meta.gc_author_name }'\n`;
+  // Process categories
   out += `date: '${ post.date }'\n`;
   out += `description: >-\n  '${ post.markdown.excerpt.rendered }'\n`;
   if ( post._embedded[ 'wp:featuredmedia' ] ){
@@ -83,8 +84,13 @@ const generatePostContent = async ( post ) => {
   
   // Process categories
   out += `layout: blog\n`;
-  if ( category ) {
-    const categoryArray = category[ 0 ].map( cat => `'${ cat.name }'` );
+  
+  // Process categories
+  if ( categoryRefs ) {
+    const categories = await Promise.all(
+      categoryRefs[ 0 ].map( catRef => getCategoryDetails( catRef ) )
+    );
+    const categoryArray = categories.map( cat => `'${ cat.name }'` );
     out += `tags: [ ${ categoryArray } ]\n`;
   } else {
     out += `tags: [ '' ]\n`;
@@ -117,18 +123,18 @@ const getBlogPostsFromGCArticles = async function( lang ) {
       throw new Error( 'Expected array of posts from API' );
     }
 
-    return data.map( post => {
-      const content = generatePostContent( post );
+    return await Promise.all( data.map( async post => {
+      const content = await generatePostContent( post );
       const fileName = buildFileName( post.title.rendered );
       return { body: content, fileName: `${ fileName }.md` };
-    } );
+    } ) );
   } catch ( error ) {
     console.error( 'Failed to fetch blog posts:', error );
     throw error;
   }
 }
-module.exports = getBlogPostsFromGCArticles;
 
+module.exports = getBlogPostsFromGCArticles;
 
 /***/ }),
 
@@ -177,64 +183,76 @@ module.exports = getJobPostsFromGCArticles;
 /***/ 5485:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const fetch = __nccwpck_require__(1380);
-const buildFileName = __nccwpck_require__(8948);
+const { fetch, buildFileName } = __nccwpck_require__(7053);  
 
-const getGCArticlesPages = ( page ) => {
-  const replacedTitle = page.title.rendered.replace( /&#8217;/g, "'" );
+const formatPageToMarkdown = (page) => {
+  const replacedTitle = page.title.rendered.replace(/&#8217;/g, "'");
 
-  let out = '';
-  out += `---\n`;
-  out += `date: '${ page.date }'\n`;
-  out += `description: >-\n  '${ page.markdown.excerpt.rendered }'\n`;
-  if ( page._embedded[ 'wp:featuredmedia' ] ){
-    out += `image: ${ page._embedded[ 'wp:featuredmedia' ][ 0 ].media_details.sizes.full.source_url }\n`;
-    out += `image-alt: ${ page._embedded[ 'wp:featuredmedia' ][ 0 ].alt_text }\n`;
-    out += `thumb: ${ page._embedded[ 'wp:featuredmedia' ][ 0 ].media_details.sizes.full.source_url }\n`;
+  let markdownContent = '';
+  markdownContent += `---\n`;
+  markdownContent += `date: '${page.date}'\n`;
+  markdownContent += `description: >-\n  '${page.markdown?.excerpt?.rendered || ''}'\n`;
+  
+  // Safely access nested media properties with optional chaining
+  if (page._embedded?.['wp:featuredmedia']?.[0]) {
+    const media = page._embedded['wp:featuredmedia'][0];
+    const imageUrl = media.media_details?.sizes?.full?.source_url || '';
+    const altText = media.alt_text || '';
+    
+    markdownContent += `image: ${imageUrl}\n`;
+    markdownContent += `image-alt: ${altText}\n`;
+    markdownContent += `thumb: ${imageUrl}\n`;
   }
-  out += `layout: ${ page.layout }\n`
-  out += `title: '${ replacedTitle }'\n`;
-  out += `translationKey: ${ page.slug }\n`;
-  if ( page.type ) {
-    out += `type: ${ page.type }\n`
+  
+  markdownContent += `layout: ${page.layout || 'default'}\n`
+  markdownContent += `title: '${replacedTitle}'\n`;
+  markdownContent += `translationKey: ${page.slug}\n`;
+  if (page.type) {
+    markdownContent += `type: ${page.type}\n`
   }
-  out += `---\n`;
-  out += `${ page.content.rendered }\n`;
+  markdownContent += `---\n`;
+  markdownContent += `${page.content?.rendered || ''}\n`;
 
-  return out;
+  return markdownContent;
 };
 
-const getGCArticlesPagesFromAPI = async function( lang ) {
+const getGCArticlesPagesFromAPI = async function(lang) {
   try {
     const url = lang === "en" 
       ? process.env.GC_ARTICLES_ENDPOINT_EN
       : process.env.GC_ARTICLES_ENDPOINT_FR
 
-    if ( !url ) {
-      throw new Error( `Missing endpoint configuration for language: ${ lang }` );
+    if (!url) {
+      throw new Error(`Missing endpoint configuration for language: ${lang}`);
     }
 
-    const response = await fetch( `${ url }pages?markdown=true&_embed` );
-    if ( !response.ok ) {
-      throw new Error( `HTTP error! status: ${ response.status }` );
+    const response = await fetch(`${url}pages?markdown=true&_embed`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
-    if ( !Array.isArray( data ) ) {
-      throw new Error( 'Expected array of pages from API' );
+    if (!Array.isArray(data)) {
+      throw new Error('Expected array of pages from API');
     }
 
-    return data.map( page => {
-      const content = getGCArticlesPages( page );
-      const fileName = buildFileName( page.title.rendered );
-      return { body: content, fileName: `${ fileName }.md` };
-    } );
+    return data.map(page => {
+      try {
+        const content = formatPageToMarkdown(page);
+        const fileName = buildFileName(page.title.rendered);
+        return { body: content, fileName: `${fileName}.md` };
+      } catch (error) {
+        console.error(`Error processing page "${page.title?.rendered || 'unknown'}":`, error);
+        return null;
+      }
+    }).filter(Boolean); // Remove any nulls from failed processing
 
-  } catch ( error ) {
-    console.error( 'Failed to fetch pages:', error );
+  } catch (error) {
+    console.error('Failed to fetch pages:', error);
     throw error;
   }
 }
+
 module.exports = getGCArticlesPagesFromAPI;
 
 /***/ }),
@@ -284,11 +302,9 @@ module.exports = getJobPosts;
 /***/ 7053:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const fetch = __nccwpck_require__(1380);
 const buildFileName = __nccwpck_require__(8948);
 
 module.exports = {
-  fetch,
   buildFileName
 };
 
@@ -28329,14 +28345,6 @@ module.exports = require("https");
 
 "use strict";
 module.exports = require("net");
-
-/***/ }),
-
-/***/ 1380:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("node-fetch");
 
 /***/ }),
 

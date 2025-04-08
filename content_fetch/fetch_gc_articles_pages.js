@@ -1,59 +1,71 @@
-const fetch = require('node-fetch');
-const buildFileName = require("../utils/buildFileName");
+const { fetch, buildFileName } = require('./shared');  
 
-const getGCArticlesPages = ( page ) => {
-  const replacedTitle = page.title.rendered.replace( /&#8217;/g, "'" );
+const formatPageToMarkdown = (page) => {
+  const replacedTitle = page.title.rendered.replace(/&#8217;/g, "'");
 
-  let out = '';
-  out += `---\n`;
-  out += `date: '${ page.date }'\n`;
-  out += `description: >-\n  '${ page.markdown.excerpt.rendered }'\n`;
-  if ( page._embedded[ 'wp:featuredmedia' ] ){
-    out += `image: ${ page._embedded[ 'wp:featuredmedia' ][ 0 ].media_details.sizes.full.source_url }\n`;
-    out += `image-alt: ${ page._embedded[ 'wp:featuredmedia' ][ 0 ].alt_text }\n`;
-    out += `thumb: ${ page._embedded[ 'wp:featuredmedia' ][ 0 ].media_details.sizes.full.source_url }\n`;
+  let markdownContent = '';
+  markdownContent += `---\n`;
+  markdownContent += `date: '${page.date}'\n`;
+  markdownContent += `description: >-\n  '${page.markdown?.excerpt?.rendered || ''}'\n`;
+  
+  // Safely access nested media properties with optional chaining
+  if (page._embedded?.['wp:featuredmedia']?.[0]) {
+    const media = page._embedded['wp:featuredmedia'][0];
+    const imageUrl = media.media_details?.sizes?.full?.source_url || '';
+    const altText = media.alt_text || '';
+    
+    markdownContent += `image: ${imageUrl}\n`;
+    markdownContent += `image-alt: ${altText}\n`;
+    markdownContent += `thumb: ${imageUrl}\n`;
   }
-  out += `layout: ${ page.layout }\n`
-  out += `title: '${ replacedTitle }'\n`;
-  out += `translationKey: ${ page.slug }\n`;
-  if ( page.type ) {
-    out += `type: ${ page.type }\n`
+  
+  markdownContent += `layout: ${page.layout || 'default'}\n`
+  markdownContent += `title: '${replacedTitle}'\n`;
+  markdownContent += `translationKey: ${page.slug}\n`;
+  if (page.type) {
+    markdownContent += `type: ${page.type}\n`
   }
-  out += `---\n`;
-  out += `${ page.content.rendered }\n`;
+  markdownContent += `---\n`;
+  markdownContent += `${page.content?.rendered || ''}\n`;
 
-  return out;
+  return markdownContent;
 };
 
-const getGCArticlesPagesFromAPI = async function( lang ) {
+const getGCArticlesPagesFromAPI = async function(lang) {
   try {
     const url = lang === "en" 
       ? process.env.GC_ARTICLES_ENDPOINT_EN
       : process.env.GC_ARTICLES_ENDPOINT_FR
 
-    if ( !url ) {
-      throw new Error( `Missing endpoint configuration for language: ${ lang }` );
+    if (!url) {
+      throw new Error(`Missing endpoint configuration for language: ${lang}`);
     }
 
-    const response = await fetch( `${ url }pages?markdown=true&_embed` );
-    if ( !response.ok ) {
-      throw new Error( `HTTP error! status: ${ response.status }` );
+    const response = await fetch(`${url}pages?markdown=true&_embed`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
-    if ( !Array.isArray( data ) ) {
-      throw new Error( 'Expected array of pages from API' );
+    if (!Array.isArray(data)) {
+      throw new Error('Expected array of pages from API');
     }
 
-    return data.map( page => {
-      const content = getGCArticlesPages( page );
-      const fileName = buildFileName( page.title.rendered );
-      return { body: content, fileName: `${ fileName }.md` };
-    } );
+    return data.map(page => {
+      try {
+        const content = formatPageToMarkdown(page);
+        const fileName = buildFileName(page.title.rendered);
+        return { body: content, fileName: `${fileName}.md` };
+      } catch (error) {
+        console.error(`Error processing page "${page.title?.rendered || 'unknown'}":`, error);
+        return null;
+      }
+    }).filter(Boolean); // Remove any nulls from failed processing
 
-  } catch ( error ) {
-    console.error( 'Failed to fetch pages:', error );
+  } catch (error) {
+    console.error('Failed to fetch pages:', error);
     throw error;
   }
 }
+
 module.exports = getGCArticlesPagesFromAPI;

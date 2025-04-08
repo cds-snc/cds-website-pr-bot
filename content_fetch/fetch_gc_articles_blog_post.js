@@ -6,12 +6,6 @@ const getCategoryDetails = async ( categoryRef ) => {
   return categoryData[0];
 };
 
-const getCategoryDetails = async ( categoryRef ) => {
-  const response = await fetch( categoryRef.href);
-  const categoryData = await response.json();
-  return categoryData[0];
-};
-
 const generatePostContent = async ( post ) => {
   const replacedTitle = post.title.rendered.replace( /&#8217;/g, "'" );
   const categoryRefs = post._embedded[ 'wp:term' ];

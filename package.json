@@ -4,7 +4,7 @@
   "description": "Builds markdown content from CMS changes and opens a PR to commit new or changed files",
   "main": "index.js",
   "scripts": {
-    "build": "ncc build index.js -o dist --external node-fetch"
+    "build": "ncc build index.js -o dist"
   },
   "author": "Bethany Dunfield",
   "license": "ISC",
