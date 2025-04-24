@@ -1,5 +1,4 @@
-const fetch = require('node-fetch');
-const buildFileName = require("../utils/buildFileName");
+const { fetch, buildFileName } = require('./shared');
 
 var getBlogPosts = async function(lang) {
   return await fetch(process.env.STRAPI_ENDPOINT + "blog-" + lang + "s")
@@ -7,7 +6,7 @@ var getBlogPosts = async function(lang) {
   .then(
     data => {
       let files = [];
-      for (p in data) {
+      for (let p in data) {
         let post = data[p]
         
         let out = "";

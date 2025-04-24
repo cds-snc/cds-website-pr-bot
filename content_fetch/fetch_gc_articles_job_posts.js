@@ -1,5 +1,4 @@
-const fetch = require('node-fetch');
-const buildFileName = require("../utils/buildFileName");
+const { fetch, buildFileName } = require('./shared');
 
 var getJobPostsFromGCArticles = async function (lang) {
     let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "job?markdown=true&_embed" : process.env.GC_ARTICLES_ENDPOINT_FR + "job?markdown=true&_embed"
@@ -8,7 +7,7 @@ var getJobPostsFromGCArticles = async function (lang) {
     .then(
         data => {
             let files = [];
-            for (p in data) {
+            for (let p in data) {
                 let post = data[p]
                 let out = "";
                 out += "---\n";

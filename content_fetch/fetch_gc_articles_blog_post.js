@@ -1,5 +1,4 @@
-const fetch = require( 'node-fetch' );
-const buildFileName = require( "../utils/buildFileName" );
+const { fetch, buildFileName } = require( './shared' );
 
 const getCategoryDetails = async ( categoryRef ) => {
   const response = await fetch( categoryRef.href);
@@ -14,6 +13,7 @@ const generatePostContent = async ( post ) => {
   let out = '';
   out += `---\n`;
   out += `author: '${ post.meta.gc_author_name }'\n`;
+  // Process categories
   out += `date: '${ post.date }'\n`;
   out += `description: >-\n  '${ post.markdown.excerpt.rendered }'\n`;
   if ( post._embedded[ 'wp:featuredmedia' ] ){
@@ -22,6 +22,7 @@ const generatePostContent = async ( post ) => {
     out += `thumb: ${ post._embedded[ 'wp:featuredmedia' ][ 0 ].media_details.sizes.full.source_url }\n`;
   }
   
+  // Process categories
   out += `layout: blog\n`;
   
   // Process categories
