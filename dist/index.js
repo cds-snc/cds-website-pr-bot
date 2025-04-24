@@ -58,79 +58,60 @@ module.exports = getBlogPosts;
 /***/ 4109:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const fetch = __nccwpck_require__( 467 );
-const buildFileName = __nccwpck_require__( 8948 );
+const fetch = __nccwpck_require__(467);
+const buildFileName = __nccwpck_require__(8948);
 
-const getCategoryDetails = async ( categoryRef ) => {
-  const response = await fetch( categoryRef.href);
-  const categoryData = await response.json();
-  return categoryData[0];
-};
+var getBlogPostsFromGCArticles = async function(lang) {
+  let url = lang == "en" ? process.env.GC_ARTICLES_ENDPOINT_EN + "posts?markdown=true&_embed" : process.env.GC_ARTICLES_ENDPOINT_FR + "posts?markdown=true&_embed"
+  return await fetch(url)
+  .then(response => response.json())
+  .then(
+    data => {
+      let files = [];
+      for (p in data) {
+        let post = data[p]
+        let replacedTitle = post.title.rendered.replace(/&#8217;/g, "’")
+        let category = post._embedded['wp:term']
+        let out = "";
+        out += "---\n";
+        out += "layout: blog\n";
+        out += "title: '" + replacedTitle + "'\n";
+        out += "description: >-\n";
+        out += "  " + post.markdown.excerpt.rendered + "\n";
+        out += "author: '" + post.meta.gc_author_name + "'\n";
+        out += "date: '" + post.date + "'\n";
 
-const generatePostContent = async ( post ) => {
-  const replacedTitle = post.title.rendered.replace( /&#8217;/g, "'" );
-  const categoryRefs = post._embedded[ 'wp:term' ];
-  
-  let out = '';
-  out += `---\n`;
-  out += `author: '${ post.meta.gc_author_name }'\n`;
-  out += `date: '${ post.date }'\n`;
-  out += `description: >-\n  '${ post.markdown.excerpt.rendered }'\n`;
-  if ( post._embedded[ 'wp:featuredmedia' ] ){
-    out += `image: ${ post._embedded[ 'wp:featuredmedia' ][ 0 ].media_details.sizes.full.source_url }\n`;
-    out += `image-alt: ${ post._embedded[ 'wp:featuredmedia' ][ 0 ].alt_text }\n`;
-    out += `thumb: ${ post._embedded[ 'wp:featuredmedia' ][ 0 ].media_details.sizes.full.source_url }\n`;
-  }
-  
-  out += `layout: blog\n`;
-  
-  // Process categories
-  if ( categoryRefs ) {
-    const categories = await Promise.all(
-      categoryRefs[ 0 ].map( catRef => getCategoryDetails( catRef ) )
-    );
-    const categoryArray = categories.map( cat => `'${ cat.name }'` );
-    out += `tags: [ ${ categoryArray } ]\n`;
-  } else {
-    out += `tags: [ '' ]\n`;
-  }
-  out += `title: '${ replacedTitle }'\n`;
-  out += `translationKey: ${ post.slug }\n`;
-  out += `---\n`;
-  out += `${ post.content.rendered }\n`;
+        out += "image: " + post._embedded['wp:featuredmedia'][0].media_details.sizes.full.source_url + "\n";
+        out += "image-alt: " + post._embedded['wp:featuredmedia'][0].alt_text + "\n";
+        out += "thumb: " + post._embedded['wp:featuredmedia'][0].media_details.sizes.full.source_url + "\n";
 
-  return out;
-};
+        // if (category) {
+        //   let innerCategory = category[0]
+        //   let categoryArray = []
 
-const getBlogPostsFromGCArticles = async function( lang ) {
-  try {
-    const url = lang === "en" 
-      ? process.env.GC_ARTICLES_ENDPOINT_EN
-      : process.env.GC_ARTICLES_ENDPOINT_FR
+        //   for (let i = 0; i < innerCategory.length; i++ ) {
+        //     categoryArray.push(`'${innerCategory[i].name}'`)
+        //   }
 
-    if ( !url ) {
-      throw new Error(`Missing endpoint configuration for language: ${ lang }`);
+        //   out += "category: " + `[${categoryArray}]` + "\n"
+        // } else {
+        //   out += "category: ['none']" + "\n"
+        // }
+        out += "translationKey: " + post.slug + "\n";
+        out += "---\n";
+
+        // Convert any body image URLS to Cloudfront
+
+        out += post.content.rendered + "\n";
+        
+        let slug = buildFileName(replacedTitle);
+
+        files.push({body: out, fileName: slug + ".md"})
+      }
+      
+      return files;
     }
-
-    const response = await fetch( `${ url }posts?markdown=true&_embed` );
-    if ( !response.ok ) {
-      throw new Error( `HTTP error! status: ${ response.status }` );
-    }
-
-    const data = await response.json();
-    if ( !Array.isArray( data ) ) {
-      throw new Error( 'Expected array of posts from API' );
-    }
-
-    return await Promise.all( data.map( async post => {
-      const content = await generatePostContent( post );
-      const fileName = buildFileName( post.title.rendered );
-      return { body: content, fileName: `${ fileName }.md` };
-    } ) );
-  } catch ( error ) {
-    console.error( 'Failed to fetch blog posts:', error );
-    throw error;
-  }
+  )
 }
 
 module.exports = getBlogPostsFromGCArticles;
@@ -202,12 +183,12 @@ var getJobPosts = async function(lang) {
         out += "  " + post.Description + "\n";
         out += "linkHidden: " + post.LinkHidden + "\n";
         out += "translationKey: " + post.TranslationID + "\n";
+        out += "leverId: " + post.LeverId + "\n";
         out += "formHidden: " + post.FormHidden + "\n";
-        out += "draft: " + post.Draft + "\n";
         out += "---\n\n";
         out += post.Body + "\n";
 
-        let slug = buildFileName(post.Title);
+        let slug = buildFileName(post.Title + `- ${post.LeverId}`);
 
         files.push({body: out, fileName: slug + ".md"})
       }
