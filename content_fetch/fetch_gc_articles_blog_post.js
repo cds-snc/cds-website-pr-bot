@@ -23,19 +23,11 @@ var getBlogPostsFromGCArticles = async function (lang) {
         out += "  " + post.markdown.excerpt.rendered + "\n";
         out += "author: '" + post.meta.gc_author_name + "'\n";
         out += "date: '" + post.date + "'\n";
-
-        out +=
-          "image: " +
-          post._embedded["wp:featuredmedia"][0].media_details.sizes.full
-            .source_url +
-          "\n";
-        out +=
-          "image-alt: " + post._embedded["wp:featuredmedia"][0].alt_text + "\n";
-        out +=
-          "thumb: " +
-          post._embedded["wp:featuredmedia"][0].media_details.sizes.full
-            .source_url +
-          "\n";
+        if ( post._embedded[ 'wp:featuredmedia' ] ){
+          out += `image: ${ post._embedded[ 'wp:featuredmedia' ][ 0 ].media_details.sizes.full.source_url }\n`;
+          out += `image-alt: ${ post._embedded[ 'wp:featuredmedia' ][ 0 ].alt_text }\n`;
+          out += `thumb: ${ post._embedded[ 'wp:featuredmedia' ][ 0 ].media_details.sizes.full.source_url }\n`;
+        }
         if (category) {
           category.forEach((group) => {
             group.forEach((term) => {
