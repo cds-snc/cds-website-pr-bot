@@ -20,6 +20,7 @@ var getJobPosts = async function(lang) {
         out += "translationKey: " + post.TranslationID + "\n";
         out += "leverId: " + post.LeverId + "\n";
         out += "formHidden: " + post.FormHidden + "\n";
+        out += "draft: " + post.Draft + "\n";
         out += "---\n\n";
         out += post.Body + "\n";
 
