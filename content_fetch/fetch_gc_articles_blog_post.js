@@ -45,8 +45,8 @@ const generatePostContent = async ( post ) => {
 const getBlogPostsFromGCArticles = async function( lang ) {
   try {
     const url = lang === "en" 
-      ? process.env.GC_ARTICLES_ENDPOINT_EN + "posts?markdown=true&_embed"
-      : process.env.GC_ARTICLES_ENDPOINT_FR + "posts?markdown=true&_embed";
+      ? process.env.GC_ARTICLES_ENDPOINT_EN
+      : process.env.GC_ARTICLES_ENDPOINT_FR
 
     if ( !url ) {
       throw new Error(`Missing endpoint configuration for language: ${ lang }`);
