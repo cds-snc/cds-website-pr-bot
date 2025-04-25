@@ -97,7 +97,7 @@ var getBlogPostsFromGCArticles = async function (lang) {
         } else {
           categoryNames = [""];
         }
-        out += "tags: " + JSON.stringify(categoryNames) + "\n";
+        // out += "tags: " + JSON.stringify(categoryNames) + "\n";
         out += "translationKey: " + post.slug + "\n";
         out += "---\n";
 
