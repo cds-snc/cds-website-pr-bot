@@ -1,60 +1,6 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 5084:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const fetch = __nccwpck_require__(467);
-const buildFileName = __nccwpck_require__(8948);
-
-var getBlogPosts = async function(lang) {
-  return await fetch(process.env.STRAPI_ENDPOINT + "blog-" + lang + "s")
-  .then(response => response.json())
-  .then(
-    data => {
-      let files = [];
-      for (p in data) {
-        let post = data[p]
-        
-        let out = "";
-        out += "---\n";
-        out += "layout: blog\n";
-        out += "title: '" + post.Title + "'\n";
-        out += "description: >-\n";
-        out += "  " + post.Description + "\n";
-        out += "author: '" + post.AuthorAndTitle + "'\n";
-        out += "date: '" + post.PublishDate + "'\n";
-        // Strapi can only interface with the S3 URLS for the images, so we need to convert them to
-        // Cloudfront so they will be externally visible
-        out += "image: " + post.BannerImage.url.replace(
-          "https://cds-website-assets-prod.s3.ca-central-1.amazonaws.com",
-          "https://de2an9clyit2x.cloudfront.net") + "\n";
-        out += "image-alt: " + post.ImageAltText + "\n";
-        out += "thumb: " + post.BannerImage.formats.small.url.replace(
-          "https://cds-website-assets-prod.s3.ca-central-1.amazonaws.com",
-          "https://de2an9clyit2x.cloudfront.net") + "\n";
-        out += "translationKey: " + post.TranslationID + "\n";
-        out += "---\n";
-        // Convert any body image URLS to Cloudfront
-        while (post.Body.indexOf("https://cds-website-assets-prod.s3.ca-central-1.amazonaws.com") !== -1) {
-          post.Body = post.Body.replace(
-            "https://cds-website-assets-prod.s3.ca-central-1.amazonaws.com",
-            "https://de2an9clyit2x.cloudfront.net");
-        }
-        out += post.Body + "\n";
-
-        let slug = buildFileName(post.Title);
-        files.push({body: out, fileName: slug + ".md"})
-      }
-
-      return files;
-    }
-  )
-}
-module.exports = getBlogPosts;
-
-/***/ }),
-
 /***/ 4109:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
@@ -8520,7 +8466,7 @@ const Base64 = (__nccwpck_require__(4139).Base64);
 const myToken = process.env.TOKEN;
 const octokit = github.getOctokit(myToken);
 
-const getBlogPosts = __nccwpck_require__(5084);
+// const getBlogPosts = require("./content_fetch/fetch_blog_posts");
 const getJobPosts = __nccwpck_require__(2866);
 
 const getBlogPostsFromGCArticles = __nccwpck_require__(4109);
@@ -8654,8 +8600,8 @@ async function run() {
 
 
   // Blog Posts
-  var blogPostsEnNew = await getBlogPosts("en");
-  var blogPostsFrNew = await getBlogPosts("fr");
+  // var blogPostsEnNew = await getBlogPosts("en");
+  // var blogPostsFrNew = await getBlogPosts("fr");
   // Job Postings
   var jobPostsEnNew = await getJobPosts("en");
   var jobPostsFrNew = await getJobPosts("fr");
@@ -8682,8 +8628,8 @@ async function run() {
 
   // Create / Update file commits
   // Blog posts
-  await createAndUpdateFiles(blogPostsEnNew, existingContentEN.data.tree, "en", "blog/posts/", branchName);
-  await createAndUpdateFiles(blogPostsFrNew, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
+  // await createAndUpdateFiles(blogPostsEnNew, existingContentEN.data.tree, "en", "blog/posts/", branchName);
+  // await createAndUpdateFiles(blogPostsFrNew, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
   await createAndUpdateFiles(gcArticlesBlogsEn, existingContentEN.data.tree, "en", "blog/posts/", branchName);
   await createAndUpdateFiles(gcArticlesBlogsFr, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
   // Job Postings
