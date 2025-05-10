@@ -13,7 +13,7 @@ var getBlogPostsFromGCArticles = async function (lang) {
   let files = [];
   
   while (true) {
-    const url = `${baseUrl}?page=${page}&per_page=${perPage}`;
+    const url = `${baseUrl}posts?markdown=true&_embed&per_page=${perPage}&page=${page}`;
     const response = await fetch(url);
 
     if (response.status === 400) {
