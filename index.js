@@ -5,6 +5,11 @@ const github = require('@actions/github');
 const Base64 = require('js-base64').Base64;
 
 const myToken = process.env.TOKEN;
+if (!myToken) {
+  console.error("❌ ERROR: TOKEN environment variable is missing!");
+  console.error("Make sure you have set TOKEN to your GitHub App installation token.");
+  process.exit(1);
+}
 const octokit = github.getOctokit(myToken);
 
 const getJobPosts = require("./content_fetch/fetch_job_posts");
