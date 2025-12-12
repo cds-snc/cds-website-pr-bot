@@ -1,12 +1,18 @@
 name: Update Website Content
-on: repository_dispatch
+
+on:
+  repository_dispatch:   
+  workflow_dispatch:  
+
 permissions:
   contents: write
   pull-requests: write
   issues: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Impersonate SRE Read/Write GH App
         uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a
@@ -15,10 +21,17 @@ jobs:
           app_id: ${{ secrets.CDS_RELEASE_BOT_APP_ID }}
           private_key: ${{ secrets.CDS_RELEASE_BOT_PRIVATE_KEY }}
 
-      - name: Generate a PR
-        uses: cds-snc/cds-website-pr-bot@main
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run PR Bot with Monitoring
+        run: node index.js
         env:
           TOKEN: ${{ steps.generate_token.outputs.token }}
           STRAPI_ENDPOINT: https://strapi.cdssandbox.xyz/
           GC_ARTICLES_ENDPOINT_EN: https://articles.alpha.canada.ca/cds-snc/wp-json/wp/v2/
           GC_ARTICLES_ENDPOINT_FR: https://articles.alpha.canada.ca/cds-snc/fr/wp-json/wp/v2/
+          NODE_ENV: Production
