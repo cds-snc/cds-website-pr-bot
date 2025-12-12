@@ -1,5 +1,9 @@
 name: Update Website Content
 on: repository_dispatch
+permissions:
+  contents: write
+  pull-requests: write
+  issues: read
 jobs:
   build:
     runs-on: ubuntu-latest
