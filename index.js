@@ -164,10 +164,12 @@ async function run() {
     if (branchcommit.data && branchcommit.data.sha !== maincommit.data.sha) {
       console.log("Changes detected, closing old PRs and creating a new one...");
       await closePRs();
+      const prTitle = `[AUTO-PR] New content release -  ${new Date().toISOString()}`;
+      console.log(`Creating PR: head=${branchName}, base=main, title="${prTitle}"`);
       await octokit.pulls.create({
         owner: 'cds-snc',
         repo: 'digital-canada-ca-website',
-        title: `[AUTO-PR] New content release -  ${new Date().toISOString()}`,
+        title: prTitle,
         head: branchName,
         base: 'main',
         body: "New Content release for CDS Website. See below commits for list of changes.",
@@ -188,7 +190,17 @@ async function run() {
 
   } catch (err) {
     console.error("PR Bot Monitor encountered an error ❌");
-    console.error(err.message || err);
+    console.error("Message:", err.message || err);
+    if (err.status) {
+      console.error("HTTP Status:", err.status);
+    }
+    if (err.response?.data) {
+      console.error("GitHub API response:", JSON.stringify(err.response.data, null, 2));
+    }
+    if (err.errors) {
+      console.error("Validation errors:", JSON.stringify(err.errors, null, 2));
+    }
+    console.error("Stack trace:", err.stack);
     process.exit(1);
   }
 }
