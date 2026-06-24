@@ -31,7 +31,6 @@ jobs:
         run: node index.js
         env:
           TOKEN: ${{ steps.generate_token.outputs.token }}
-          STRAPI_ENDPOINT: https://strapi.cdssandbox.xyz/
           GC_ARTICLES_ENDPOINT_EN: https://articles.alpha.canada.ca/cds-snc/wp-json/wp/v2/
           GC_ARTICLES_ENDPOINT_FR: https://articles.alpha.canada.ca/cds-snc/fr/wp-json/wp/v2/
           NODE_ENV: Production
