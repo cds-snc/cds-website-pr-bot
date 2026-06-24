@@ -128,48 +128,6 @@ module.exports = getJobPostsFromGCArticles;
 
 /***/ }),
 
-/***/ 2866:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const fetch = __nccwpck_require__(467);
-const buildFileName = __nccwpck_require__(8948);
-
-var getJobPosts = async function(lang) {
-  return await fetch(process.env.STRAPI_ENDPOINT + "job-posting-" + lang + "s")
-  .then(response => response.json())
-  .then(
-    data => {
-      let files = [];
-      for (p in data) {
-        let post = data[p]
-        let out = "";
-        out += "---\n";
-        out += "layout: job-posting\n";
-        out += "type: section\n";
-        out += "title: '" + post.Title + "'\n";
-        out += "description: >-\n";
-        out += "  " + post.Description + "\n";
-        out += "linkHidden: " + post.LinkHidden + "\n";
-        out += "translationKey: " + post.TranslationID + "\n";
-        out += "leverId: " + post.LeverId + "\n";
-        out += "formHidden: " + post.FormHidden + "\n";
-        out += "---\n\n";
-        out += post.Body + "\n";
-
-        let slug = buildFileName(post.Title + `- ${post.LeverId}`);
-
-        files.push({body: out, fileName: slug + ".md"})
-      }
-
-      return files;
-    }
-  )
-}
-
-module.exports = getJobPosts;
-
-/***/ }),
-
 /***/ 4087:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -8485,9 +8443,13 @@ const github = __nccwpck_require__(5438);
 const Base64 = (__nccwpck_require__(4139).Base64);
 
 const myToken = process.env.TOKEN;
+if (!myToken) {
+  console.error("❌ ERROR: TOKEN environment variable is missing!");
+  console.error("Make sure you have set TOKEN to your GitHub App installation token.");
+  process.exit(1);
+}
 const octokit = github.getOctokit(myToken);
 
-const getJobPosts = __nccwpck_require__(2866);
 const getBlogPostsFromGCArticles = __nccwpck_require__(4109);
 const getJobPostsFromGCArticles = __nccwpck_require__(7104);
 
@@ -8592,9 +8554,6 @@ async function run() {
 
     console.log("Fetching CMS content...");
 
-    const jobPostsEnNew = await getJobPosts("en");
-    const jobPostsFrNew = await getJobPosts("fr");
-
     const gcArticlesBlogsEn = await getBlogPostsFromGCArticles("en");
     const gcArticlesBlogsFr = await getBlogPostsFromGCArticles("fr");
 
@@ -8602,7 +8561,6 @@ async function run() {
     const gcArticlesJobPostsFr = await getJobPostsFromGCArticles("fr");
 
     console.log(`EN blogs fetched: ${gcArticlesBlogsEn.length}, FR blogs fetched: ${gcArticlesBlogsFr.length}`);
-    console.log(`EN jobs fetched: ${jobPostsEnNew.length}, FR jobs fetched: ${jobPostsFrNew.length}`);
     console.log(`EN GC jobs fetched: ${gcArticlesJobPostsEn.length}, FR GC jobs fetched: ${gcArticlesJobPostsFr.length}`);
 
     const websiteSha = await getHeadSha("digital-canada-ca-website", "main");
@@ -8619,8 +8577,6 @@ async function run() {
     console.log("Creating/updating files...");
     await createAndUpdateFiles(gcArticlesBlogsEn, existingContentEN.data.tree, "en", "blog/posts/", branchName);
     await createAndUpdateFiles(gcArticlesBlogsFr, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
-    await createAndUpdateFiles(jobPostsEnNew, existingContentEN.data.tree, "en", "jobs/positions/", branchName);
-    await createAndUpdateFiles(jobPostsFrNew, existingContentFR.data.tree, "fr", "jobs/positions/", branchName);
     await createAndUpdateFiles(gcArticlesJobPostsEn, existingContentEN.data.tree, "en", "jobs/positions/", branchName);
     await createAndUpdateFiles(gcArticlesJobPostsFr, existingContentFR.data.tree, "fr", "jobs/positions/", branchName);
 
@@ -8639,10 +8595,12 @@ async function run() {
     if (branchcommit.data && branchcommit.data.sha !== maincommit.data.sha) {
       console.log("Changes detected, closing old PRs and creating a new one...");
       await closePRs();
+      const prTitle = `[AUTO-PR] New content release -  ${new Date().toISOString()}`;
+      console.log(`Creating PR: head=${branchName}, base=main, title="${prTitle}"`);
       await octokit.pulls.create({
         owner: 'cds-snc',
         repo: 'digital-canada-ca-website',
-        title: `[AUTO-PR] New content release -  ${new Date().toISOString()}`,
+        title: prTitle,
         head: branchName,
         base: 'main',
         body: "New Content release for CDS Website. See below commits for list of changes.",
@@ -8663,7 +8621,17 @@ async function run() {
 
   } catch (err) {
     console.error("PR Bot Monitor encountered an error ❌");
-    console.error(err.message || err);
+    console.error("Message:", err.message || err);
+    if (err.status) {
+      console.error("HTTP Status:", err.status);
+    }
+    if (err.response?.data) {
+      console.error("GitHub API response:", JSON.stringify(err.response.data, null, 2));
+    }
+    if (err.errors) {
+      console.error("Validation errors:", JSON.stringify(err.errors, null, 2));
+    }
+    console.error("Stack trace:", err.stack);
     process.exit(1);
   }
 }

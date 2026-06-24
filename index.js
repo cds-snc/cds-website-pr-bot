@@ -12,7 +12,6 @@ if (!myToken) {
 }
 const octokit = github.getOctokit(myToken);
 
-const getJobPosts = require("./content_fetch/fetch_job_posts");
 const getBlogPostsFromGCArticles = require("./content_fetch/fetch_gc_articles_blog_post");
 const getJobPostsFromGCArticles = require("./content_fetch/fetch_gc_articles_job_posts");
 
@@ -117,9 +116,6 @@ async function run() {
 
     console.log("Fetching CMS content...");
 
-    const jobPostsEnNew = await getJobPosts("en");
-    const jobPostsFrNew = await getJobPosts("fr");
-
     const gcArticlesBlogsEn = await getBlogPostsFromGCArticles("en");
     const gcArticlesBlogsFr = await getBlogPostsFromGCArticles("fr");
 
@@ -127,7 +123,6 @@ async function run() {
     const gcArticlesJobPostsFr = await getJobPostsFromGCArticles("fr");
 
     console.log(`EN blogs fetched: ${gcArticlesBlogsEn.length}, FR blogs fetched: ${gcArticlesBlogsFr.length}`);
-    console.log(`EN jobs fetched: ${jobPostsEnNew.length}, FR jobs fetched: ${jobPostsFrNew.length}`);
     console.log(`EN GC jobs fetched: ${gcArticlesJobPostsEn.length}, FR GC jobs fetched: ${gcArticlesJobPostsFr.length}`);
 
     const websiteSha = await getHeadSha("digital-canada-ca-website", "main");
@@ -144,8 +139,6 @@ async function run() {
     console.log("Creating/updating files...");
     await createAndUpdateFiles(gcArticlesBlogsEn, existingContentEN.data.tree, "en", "blog/posts/", branchName);
     await createAndUpdateFiles(gcArticlesBlogsFr, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
-    await createAndUpdateFiles(jobPostsEnNew, existingContentEN.data.tree, "en", "jobs/positions/", branchName);
-    await createAndUpdateFiles(jobPostsFrNew, existingContentFR.data.tree, "fr", "jobs/positions/", branchName);
     await createAndUpdateFiles(gcArticlesJobPostsEn, existingContentEN.data.tree, "en", "jobs/positions/", branchName);
     await createAndUpdateFiles(gcArticlesJobPostsFr, existingContentFR.data.tree, "fr", "jobs/positions/", branchName);
 
