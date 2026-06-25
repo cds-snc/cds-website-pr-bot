@@ -5,24 +5,25 @@ on:
   workflow_dispatch:  
 
 permissions:
-  contents: write
-  pull-requests: write
-  issues: read
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Impersonate SRE Read/Write GH App
-        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a
-        id: generate_token
+      - uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2.2.2
+        id: sre-app-token
         with:
-          app_id: ${{ secrets.CDS_RELEASE_BOT_APP_ID }}
-          private_key: ${{ secrets.CDS_RELEASE_BOT_PRIVATE_KEY }}
+          app-id: ${{ secrets.CDS_RELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.CDS_RELEASE_BOT_PRIVATE_KEY }}
+          owner: cds-snc
+          repositories: digital-canada-ca-website
+          permission-contents: write
+          permission-pull-requests: write
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Install dependencies
         run: npm install
@@ -30,7 +31,7 @@ jobs:
       - name: Run PR Bot with Monitoring
         run: node index.js
         env:
-          TOKEN: ${{ steps.generate_token.outputs.token }}
+          TOKEN: ${{ steps.sre-app-token.outputs.token }}
           GC_ARTICLES_ENDPOINT_EN: https://articles.alpha.canada.ca/cds-snc/wp-json/wp/v2/
           GC_ARTICLES_ENDPOINT_FR: https://articles.alpha.canada.ca/cds-snc/fr/wp-json/wp/v2/
           NODE_ENV: Production
