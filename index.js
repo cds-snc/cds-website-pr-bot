@@ -17,7 +17,7 @@ const getJobPostsFromGCArticles = require("./content_fetch/fetch_gc_articles_job
 
 async function closePRs() {
   console.log("Checking for old auto PRs to close...");
-  const { data: prs } = await octokit.pulls.list({
+  const { data: prs } = await octokit.rest.pulls.list({
     owner: 'cds-snc',
     repo: 'digital-canada-ca-website',
     state: 'open'
@@ -26,13 +26,13 @@ async function closePRs() {
   for (const pr of prs) {
     if (pr.title.startsWith("[AUTO-PR]")) {
       console.log(`Closing PR #${pr.number}: ${pr.title}`);
-      await octokit.pulls.update({
+      await octokit.rest.pulls.update({
         owner: 'cds-snc',
         repo: 'digital-canada-ca-website',
         pull_number: pr.number,
         state: "closed"
       });
-      await octokit.git.deleteRef({
+      await octokit.rest.git.deleteRef({
         owner: 'cds-snc',
         repo: 'digital-canada-ca-website',
         ref: `heads/${pr.head.ref}`
@@ -42,7 +42,7 @@ async function closePRs() {
 }
 
 const getHeadSha = async (repo, branch = 'main') => {
-  const { data: data } = await octokit.repos.getBranch({
+  const { data: data } = await octokit.rest.repos.getBranch({
     owner: 'cds-snc',
     repo,
     branch,
@@ -59,7 +59,7 @@ const createAndUpdateFiles = async (newFiles, oldFiles, lang, subpath, branchNam
 
     if (exists.length === 0) {
       console.log(`Creating new file: ${path + subpath + newFiles[f].fileName}`);
-      await octokit.repos.createOrUpdateFileContents({
+      await octokit.rest.repos.createOrUpdateFileContents({
         owner: 'cds-snc',
         repo: 'digital-canada-ca-website',
         path: path + subpath + newFiles[f].fileName,
@@ -68,14 +68,14 @@ const createAndUpdateFiles = async (newFiles, oldFiles, lang, subpath, branchNam
         message: "Added new file: " + newFiles[f].fileName
       })
     } else {
-      const result = await octokit.repos.getContent({
+      const result = await octokit.rest.repos.getContent({
         owner: 'cds-snc',
         repo: 'digital-canada-ca-website',
         path: path + exists[0].path
       });
       if (Base64.decode(result.data.content) != newFiles[f].body) {
         console.log(`Updating existing file: ${path + exists[0].path}`);
-        await octokit.repos.createOrUpdateFileContents({
+        await octokit.rest.repos.createOrUpdateFileContents({
           owner: 'cds-snc',
           repo: 'digital-canada-ca-website',
           sha: exists[0].sha,
@@ -95,18 +95,18 @@ async function run() {
     console.log("Timestamp:", new Date().toISOString());
 
     console.log("Fetching existing content from repo...");
-    const treeShas = await octokit.repos.getContent({
+    const treeShas = await octokit.rest.repos.getContent({
       owner: 'cds-snc',
       repo: 'digital-canada-ca-website',
       path: "/content",
     });
-    const existingContentEN = await octokit.git.getTree({
+    const existingContentEN = await octokit.rest.git.getTree({
       owner: 'cds-snc',
       repo: 'digital-canada-ca-website',
       tree_sha: treeShas.data.find(tree => tree.name === "en").sha,
       recursive: true
     });
-    const existingContentFR = await octokit.git.getTree({
+    const existingContentFR = await octokit.rest.git.getTree({
       owner: 'cds-snc',
       repo: 'digital-canada-ca-website',
       tree_sha: treeShas.data.find(tree => tree.name === "fr").sha,
@@ -128,7 +128,7 @@ async function run() {
     const branchName = `content-release-${new Date().getTime()}`;
 
     console.log(`Creating branch: ${branchName}`);
-    await octokit.git.createRef({
+    await octokit.rest.git.createRef({
       owner: 'cds-snc',
       repo: 'digital-canada-ca-website',
       ref: `refs/heads/${branchName}`,
@@ -158,7 +158,7 @@ async function run() {
       await closePRs();
       const prTitle = `[AUTO-PR] New content release -  ${new Date().toISOString()}`;
       console.log(`Creating PR: head=${branchName}, base=main, title="${prTitle}"`);
-      await octokit.pulls.create({
+      await octokit.rest.pulls.create({
         owner: 'cds-snc',
         repo: 'digital-canada-ca-website',
         title: prTitle,
@@ -170,7 +170,7 @@ async function run() {
       console.log("PR created successfully ✅");
     } else {
       console.log("No changes detected, deleting branch...");
-      await octokit.git.deleteRef({
+      await octokit.rest.git.deleteRef({
         owner: 'cds-snc',
         repo: 'digital-canada-ca-website',
         ref: `heads/${branchName}`
