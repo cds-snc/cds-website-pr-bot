@@ -95,24 +95,13 @@ async function run() {
     console.log("Timestamp:", new Date().toISOString());
 
     console.log("Fetching existing content from repo...");
-    const treeShas = await octokit.repos.getContent({
-      owner: 'cds-snc',
-      repo: 'digital-canada-ca-website',
-      path: "/content",
-    });
-
-    const existingContentEN = await octokit.git.getTree({
-      owner: 'cds-snc',
-      repo: 'digital-canada-ca-website',
-      tree_sha: treeShas.data.find(tree => tree.name === "en").sha,
-      recursive: true
-    });
-    const existingContentFR = await octokit.git.getTree({
-      owner: 'cds-snc',
-      repo: 'digital-canada-ca-website',
-      tree_sha: treeShas.data.find(tree => tree.name === "fr").sha,
-      recursive: true
-    });
+    const [enBlogPosts, frBlogPosts, enJobPosts, frJobPosts] = await Promise.all([
+      octokit.repos.getContent({ owner: 'cds-snc', repo: 'digital-canada-ca-website', path: "content/en/blog/posts" }),
+      octokit.repos.getContent({ owner: 'cds-snc', repo: 'digital-canada-ca-website', path: "content/fr/blog/posts" }),
+      octokit.repos.getContent({ owner: 'cds-snc', repo: 'digital-canada-ca-website', path: "content/en/jobs" }),
+      octokit.repos.getContent({ owner: 'cds-snc', repo: 'digital-canada-ca-website', path: "content/fr/jobs" }),
+    ]);
+    const toRelative = (data, lang) => data.map(f => ({ ...f, path: f.path.slice(`content/${lang}/`.length) }));
 
     console.log("Fetching CMS content...");
 
@@ -137,10 +126,10 @@ async function run() {
     });
 
     console.log("Creating/updating files...");
-    await createAndUpdateFiles(gcArticlesBlogsEn, existingContentEN.data.tree, "en", "blog/posts/", branchName);
-    await createAndUpdateFiles(gcArticlesBlogsFr, existingContentFR.data.tree, "fr", "blog/posts/", branchName);
-    await createAndUpdateFiles(gcArticlesJobPostsEn, existingContentEN.data.tree, "en", "jobs/positions/", branchName);
-    await createAndUpdateFiles(gcArticlesJobPostsFr, existingContentFR.data.tree, "fr", "jobs/positions/", branchName);
+    await createAndUpdateFiles(gcArticlesBlogsEn, toRelative(enBlogPosts.data, 'en'), "en", "blog/posts/", branchName);
+    await createAndUpdateFiles(gcArticlesBlogsFr, toRelative(frBlogPosts.data, 'fr'), "fr", "blog/posts/", branchName);
+    await createAndUpdateFiles(gcArticlesJobPostsEn, toRelative(enJobPosts.data, 'en'), "en", "jobs/positions/", branchName);
+    await createAndUpdateFiles(gcArticlesJobPostsFr, toRelative(frJobPosts.data, 'fr'), "fr", "jobs/positions/", branchName);
 
     console.log("Checking commits to see if PR is needed...");
     const branchcommit = await octokit.request('GET /repos/{owner}/{repo}/commits/{sha}', {
