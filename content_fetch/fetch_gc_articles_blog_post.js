@@ -1,4 +1,3 @@
-const fetch = require("node-fetch");
 const buildFileName = require("../utils/buildFileName");
 
 var getBlogPostsFromGCArticles = async function (lang) {
