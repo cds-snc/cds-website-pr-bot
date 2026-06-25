@@ -17,6 +17,8 @@ jobs:
         with:
           app-id: ${{ secrets.CDS_RELEASE_BOT_APP_ID }}
           private-key: ${{ secrets.CDS_RELEASE_BOT_PRIVATE_KEY }}
+          owner: cds-snc
+          repositories: digital-canada-ca-website
           permission-contents: write
           permission-pull-requests: write
 
